@@ -1,0 +1,410 @@
+//------------------------------------------------------------------------------
+// ModelPrivData.idp
+// $HeadURL: https://www.msec.be/svn/modeling/Projects/ModPrivAndTrustInElecServ/ModelPrivData.idp $
+//------------------------------------------------------------------------------
+// $Rev:: 58                        $:  Revision of the last commit
+// $Author:: koen                   $:  Author of last commit
+// $Date:: 2012-11-26 14:08:47 +010#$:  Date of last commit
+//------------------------------------------------------------------------------
+
+Data:
+  //----------------------------------------------------------------------------
+  // System stakeholders, attributes, identity and pseudonymity
+  //----------------------------|-----------------------------------------------
+  Stakeholder = {               // type
+    User;                       // fixed
+    Gov; Univ;
+    TravelAgency; Airline; Hotel; ThemePark;
+    Jurisdiction;
+  }
+  
+  User = {                      // type - fixed
+    User;
+  }
+  
+  Organization = {              // type
+    Gov; Univ;
+    TravelAgency; Airline; Hotel; ThemePark;
+    Jurisdiction;
+  }
+  
+  Service = {                   // type
+    Book; BookExt; Reduction;
+    ShowTicket; DeAnonimize;
+  }
+  
+  Attribute = {                 // type
+    Name; DoB; Address; Citiz; SSN; Prof;
+    Inst; Study; 
+    RewAccount; EMail; RewStat;
+    FlightDest; DoT; Diet;
+    HotLoc; Room; DoA; DoD;
+    DoV;    
+    Prove; Vault; VouchID;
+    NameTest; AddressTest;
+  }
+  
+  Identifier = {                // type
+    I1; I2;
+    N1; N2; N3; N4;
+  }
+  
+  IdentSet = {                  // type
+    I1; I2;
+  }
+  
+  PseudoSet = {                 // type
+    N1; N2; N3; N4;
+  }
+  
+  IdentSet = {                  // (IdentSet, Attribute)
+    I1,Name;
+    I1,Address;    
+    I2,NameTest;
+    I2,AddressTest;    
+  }
+  
+  PseudoSet = {                 // (PseudoSet, Attribute)
+    N1,EMail;
+    N2,RewAccount;
+    N3,Vault;
+    N4, VouchID;
+  }
+  
+  //----------------------------------------------------------------------------
+  // Credentials
+  //----------------------------|-----------------------------------------------
+  Credential = {                // type
+    EID; Drive; Stud; StudIdmx; RewHotC;
+    VouchPlane; VouchHotel; VouchPark; VoucParkIdmx;
+  }
+  
+  CredAttr = {                  // (Credential, Attribute)
+    EID,Name; EID,Address; EID,Citiz; EID,DoB; EID,SSN; EID,Prof;
+    Drive,Name; Drive,Address; Drive,Citiz; Drive,DoB;
+    Stud,Name; Stud,Address; Stud,DoB; Stud,Inst; Stud,Study; 
+    StudIdmx,Name; StudIdmx,Address; StudIdmx,DoB; StudIdmx,Inst; 
+    StudIdmx,Study;
+    RewHotC,RewAccount;
+    VoucParkIdmx,VouchID;
+  }
+  
+  CredTech = {                  // (Credential, ClaimBasedTech)
+    EID,X509; Drive,X509; Stud,X509; StudIdmx,Idemix; RewHotC,X509; 
+    VoucParkIdmx,X509;
+  }
+  
+  CredIssuer = {                // (Credential, Organization)
+    EID,Gov; Drive,Gov; Stud,Univ; StudIdmx,Gov; RewHotC,Hotel;
+    VoucParkIdmx,ThemePark;
+  }
+  
+  //----------------------------------------------------------------------------
+  //  User trust relations exist of two trust relations
+  //----------------------------|-----------------------------------------------  
+  StorageTrust = {              // (Organization)
+    Airline; 
+    ThemePark;
+    Jurisdiction;
+  }
+  
+  DistributionTrust = {         // (Organization)
+    Airline; Hotel; ThemePark; Jurisdiction;    
+  }
+  
+  //----------------------------------------------------------------------------
+  // Profiles
+  //----------------------------|-----------------------------------------------  
+  Profile = {                   // type
+    RewHotP; DeAnonJurisP;
+  }
+  
+  ProfAttr = {                  // (Profile, Attribute, Stakeholder)
+    RewHotP,RewAccount,Hotel; RewHotP,Name,User; RewHotP,Address,User;
+    RewHotP,EMail,Hotel; RewHotP,DoB,User; RewHotP,RewStat,Hotel;
+    DeAnonJurisP,NameTest,Gov; DeAnonJurisP,AddressTest,Gov; 
+    DeAnonJurisP,Vault,User;
+  }
+  
+  ProfTech = {                  // (Profile, NetworkBasedTech)
+    RewHotP,Private;
+    DeAnonJurisP,Private;
+  }
+  
+  ProfHost = {                  // (Profile, Organization)
+    RewHotP,Hotel;
+    DeAnonJurisP,Jurisdiction;
+  }
+  
+  ProfRestrictAccess = {        // (Profile, Organization)
+  }
+  
+  //----------------------------------------------------------------------------
+  // Service policies
+  //----------------------------|-----------------------------------------------
+  ServPolicy = {                // type
+    SpBookTravID; SpBookTravDriv; SpBookAir; SpBookHot; SpBookPark;
+    SpBookExtAir; SpBookExtHot; SpBookExtPark;
+    SpRedParkStud; SpRedParkRew; SpRedParkIdmx;
+    SpParkShowTicket; SpDeAnon;
+  }
+  
+  ServPolicy = {                // (ServPolicy, Service, Organization)
+    SpBookTravID,Book,TravelAgency; SpBookTravDriv,Book,TravelAgency;
+    SpBookAir,Book,Airline; SpBookExtAir,BookExt,Airline;
+    SpBookHot,Book,Hotel; SpBookExtHot,BookExt,Hotel;
+    SpBookPark,Book,ThemePark; SpBookExtPark,BookExt,ThemePark;
+    SpRedParkStud,Reduction,ThemePark; SpRedParkRew,Reduction,ThemePark;
+    SpRedParkIdmx,Reduction,ThemePark;
+    SpParkShowTicket,ShowTicket,ThemePark;
+    SpDeAnon,DeAnonimize,Jurisdiction;    
+  }  
+  
+  ServPolOwn = {                // (ServPolicy, Credential, Organization)
+    SpBookTravID,EID,Gov; SpBookTravID,RewHotC,Hotel;
+    SpBookTravDriv,Drive,Gov; SpBookTravDriv,RewHotC,Hotel;
+    SpBookAir,EID,Gov; 
+    SpBookHot,EID,Gov; SpBookHot,RewHotC,Hotel;
+    SpRedParkStud,Stud,Univ; SpRedParkRew,RewHotC,Hotel; 
+    SpRedParkIdmx,StudIdmx,Gov;
+    SpParkShowTicket,VoucParkIdmx,ThemePark;
+  }
+  
+  ServPolRevealU = {            // (ServPolicy, Attribute)
+    //SpBookTravID
+    SpBookTravID,EMail; SpBookTravID,FlightDest; SpBookTravID,DoT; 
+    SpBookTravID,Diet; SpBookTravID,HotLoc; SpBookTravID,Room;
+    SpBookTravID,DoA; SpBookTravID,DoD;
+    
+    //SpBookTravDriv
+    SpBookTravDriv,EMail; SpBookTravDriv,FlightDest; SpBookTravDriv,DoT; 
+    SpBookTravDriv,Diet; SpBookTravDriv,HotLoc; SpBookTravDriv,Room;
+    SpBookTravDriv,DoA; SpBookTravDriv,DoD;
+    
+    //SpBookAir
+    SpBookAir,EMail; SpBookAir,FlightDest; SpBookAir,DoT; SpBookAir,Diet;
+    
+    //SpBookHot
+    SpBookHot,EMail; SpBookHot,HotLoc; SpBookHot,Room; 
+    SpBookHot,DoA; SpBookHot,DoD;
+    
+    //SpBookPark
+    SpBookPark,EMail; SpBookPark,DoV;
+
+    //SpRedParkStud
+    SpRedParkStud,EMail; SpRedParkStud,DoV;
+    
+    //SpRedParkRew
+    SpRedParkRew,EMail; SpRedParkRew,DoV;
+    
+    //SpRedParkIdmx
+    SpRedParkIdmx,Vault;    
+  }
+  
+  ServPolRevealC = {            // (ServPolicy, Credential, Attribute)
+    //SpBookTravID
+    SpBookTravID,EID,Name; SpBookTravID,EID,Address; 
+    SpBookTravID,EID,Citiz; SpBookTravID,EID,DoB;
+    SpBookTravID,RewHotC,RewAccount;
+    
+    //SpBookTravDriv
+    SpBookTravDriv,Drive,Name; SpBookTravDriv,Drive,Address; 
+    SpBookTravDriv,Drive,Citiz; SpBookTravDriv,Drive,DoB;
+    
+    //SpBookAir
+    SpBookAir,EID,Name; SpBookAir,EID,Address; SpBookAir,EID,Citiz;
+    SpBookAir,EID,DoB;
+    
+    //SpBookHot
+    SpBookHot,EID,Name; SpBookHot,EID,Address; SpBookHot,EID,Citiz;
+    SpBookHot,EID,DoB;
+    SpBookHot,RewHotC,RewAccount;
+    
+    //SpRedParkStud
+    SpRedParkStud,Stud,Name; SpRedParkStud,Stud,Address; 
+    SpRedParkStud,Stud,DoB;
+    
+    //SpRedParkRew
+    SpRedParkRew,RewHotC,RewAccount;
+
+    //SpParkShowTicket
+    SpParkShowTicket,VoucParkIdmx,VouchID;
+  }
+  
+  ServPolRevealP = {            // (ServPolicy, Profile, Attribute, Stakeholder)
+    //SpRedParkRew
+    SpRedParkRew,RewHotP,RewStat,Hotel;
+  }
+  
+  ServPolRevealO = {            // (ServPolicy, Attribute, Stakeholder)
+    //SpBookExtAir
+    SpBookExtAir,Name,Gov; SpBookExtAir,Address,Gov; SpBookExtAir,Citiz,Gov; 
+    SpBookExtAir,DoB,Gov; SpBookExtAir,FlightDest,User; 
+    SpBookExtAir,DoT,User; SpBookExtAir,Diet,User;    
+    
+    //SpBookExtHot
+    SpBookExtHot,Name,Gov; SpBookExtHot,Address,Gov; SpBookExtHot,Citiz,Gov; 
+    SpBookExtHot,DoB,Gov; SpBookExtHot,RewAccount,Hotel; 
+    SpBookExtHot,EMail,User; SpBookExtHot,HotLoc,User; SpBookExtHot,Room,User; 
+    SpBookExtHot,DoA,User; SpBookExtHot,DoD,User;
+    
+    //SpBookExtPark
+    SpBookExtPark,EMail,User; SpBookExtPark,DoV,User;
+  }
+  
+  ServPolStore = {              // (ServPolicy, Attribute, Stakeholder)
+    //SpBookAir
+    SpBookAir,Name,Gov; SpBookAir,Address,Gov; SpBookAir,Citiz,Gov;
+    SpBookAir,DoB,Gov; SpBookAir,EMail,User; SpBookAir,FlightDest,User;    
+    SpBookAir,DoT,User;    
+    
+    //SpBookHotel
+    SpBookHot,Name,Gov; SpBookHot,Address,Gov; SpBookHot,Citiz,Gov;
+    SpBookHot,DoB,Gov; SpBookHot,RewAccount,Hotel; 
+    SpBookHot,EMail,User; SpBookHot,HotLoc,User;
+    SpBookHot,Room,User;  SpBookHot,DoA,User; SpBookHot,DoD,User;   
+    
+    //SpBookPark
+    SpBookPark,EMail,User; SpBookPark,DoV,User;
+    
+    //SpRedParkStud
+    SpRedParkStud,Name,Univ; SpRedParkStud,Address,Univ; 
+    SpRedParkStud,DoB,Univ;
+    SpRedParkStud,EMail,User; SpRedParkStud,DoV,User;    
+    
+    //SpRedParkRew
+    SpRedParkRew,RewAccount,Hotel; 
+    SpRedParkRew,EMail,User; SpRedParkRew,DoV,User;
+    
+    //SpRedParkIdmx
+    SpRedParkIdmx,Vault,User; SpRedParkIdmx,VouchID,ThemePark;
+    
+    //SpBookExtAir
+    SpBookExtAir,Name,Gov; SpBookExtAir,Address,Gov; SpBookExtAir,Citiz,Gov;
+    SpBookExtAir,DoB,Gov; SpBookExtAir,EMail,User; SpBookExtAir,FlightDest,User;    
+    SpBookExtAir,DoT,User; 
+    
+    //SpBookExtHot
+    SpBookExtHot,Name,Gov; SpBookExtHot,Address,Gov; SpBookExtHot,Citiz,Gov;
+    SpBookExtHot,DoB,Gov; SpBookExtHot,RewAccount,Hotel; 
+    SpBookExtHot,EMail,User; SpBookExtHot,HotLoc,User;
+    SpBookExtHot,Room,User;  SpBookExtHot,DoA,User; SpBookExtHot,DoD,User;
+    
+    //SpBookExtPark    
+    SpBookExtPark,EMail,User; SpBookExtPark,DoV,User;
+    
+    //SpParkShowTicket
+    SpParkShowTicket,VouchID,ThemePark;   
+  }
+  
+  ServPolForward = {            // type
+    FwAir; FwHot; FwPark;
+  }
+  
+  ServPolForward = {            // (ServPolicy, ServPolForward)
+    SpBookTravID,FwAir; SpBookTravDriv,FwAir;
+    SpBookTravID,FwHot; SpBookTravDriv,FwHot;
+    SpBookTravID,FwPark; SpBookTravDriv,FwPark;    
+  }
+  
+  ServPolForward = {            // (ServPolForward, Attribute, Stakeholder)
+    //FwAir
+    FwAir,Name,Gov; FwAir,Address,Gov; FwAir,Citiz,Gov; FwAir,DoB,Gov;
+    FwAir,EMail,User; FwAir,FlightDest,User; FwAir,DoT,User; FwAir,Diet,User;
+    
+    //FwHot
+    FwHot,Name,Gov; FwHot,Address,Gov; FwHot,Citiz,Gov; FwHot,DoB,Gov;
+    FwHot,RewAccount,Hotel;
+    FwHot,EMail,User; FwHot,HotLoc,User; FwHot,Room,User; 
+    FwHot,DoA,User; FwHot,DoD,User;
+    
+    //FwPark
+    FwPark,EMail,User; FwPark,DoV,User;    
+  }
+  
+  ServPolForwardTo = {          // (ServPolForward, ServPolicy)
+    FwAir,SpBookExtAir;
+    FwHot,SpBookExtHot;
+    FwPark,SpBookExtPark;    
+  }
+  
+  Condition = {                 // type
+    MisbehaviorPark;
+  }
+  
+  Condition = {                 // (Condition, Attribute)
+    MisbehaviorPark,Prove;
+  }
+  
+  ServPolSharing = {            //(ServPolicy,ServPolicy,Condition)
+    SpParkShowTicket,SpDeAnon,MisbehaviorPark;
+    SpDeAnon,SpParkShowTicket,MisbehaviorPark;
+  }
+  
+  ServPolOutputC = {            // (ServPolicy, Credential)
+    //VouchPlane
+    SpBookAir,VouchPlane;
+    SpBookExtAir,VouchPlane;
+    
+    //VouchHotel
+    SpBookHot,VouchHotel;
+    SpBookExtHot,VouchHotel;
+    
+    //VouchPark
+    SpBookPark,VouchPark;
+    SpBookExtPark,VouchPark;
+    SpRedParkStud,VouchPark;
+    SpRedParkRew,VouchPark;
+    SpRedParkIdmx,VoucParkIdmx;
+  }
+  
+  ServPolOutputP = {            // (ServPolicy, Profile)
+  }
+  
+  //----------------------------------------------------------------------------
+  // Inferences
+  //----------------------------------------------------------------------------  
+  ServGroup = {                 // type
+    GroupBookTrav; GroupBookDirect; GroupReduction;
+  }
+  
+  ServGroup = {                 // (ServGroup, Service, Organization)
+    GroupBookTrav,Book,TravelAgency;
+    
+    GroupBookDirect,Book,Airline; GroupBookDirect,Book,Hotel; 
+    GroupBookDirect,Book,ThemePark;
+    
+    GroupReduction,Reduction,ThemePark;
+  }
+  
+  AlternativeGroup = {          // (ServGroup, ServGroup)
+    GroupBookTrav,GroupBookDirect;
+  }
+  
+  Collaboration = {             // type
+    CollAirPark;
+  }
+  
+  Collaboration = {             // (Collaboration, Organization)
+    CollAirPark,Airline;
+    CollAirPark,ThemePark;
+  }
+  
+  OrgDomain = {                 // type
+    Commercial;
+  }
+  
+  OrgDomain = {                 // (OrgDomain, Organization)
+    Commercial,ThemePark;
+  }
+  
+  UserPolRevealNotAllow = {     // (OrgDomain, Attribute)
+    Commercial,SSN;
+  }
+  
+  UserPolRevealNotAllowId = {   // (OrgDomain, Identifier)
+  }
+  
+  ConditionFulfilled = {        // (Condition)
+    //MisbehaviorPark;
+  }
