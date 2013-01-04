@@ -2,9 +2,9 @@
 // ModelPriv.idp
 // $HeadURL: https://www.msec.be/svn/modeling/Projects/ModPrivAndTrustInElecServ/ModelPriv.idp $
 //------------------------------------------------------------------------------
-// $Rev:: 69                        $:  Revision of the last commit
+// $Rev:: 77                        $:  Revision of the last commit
 // $Author:: koen                   $:  Author of last commit
-// $Date:: 2012-12-14 11:06:51 +010#$:  Date of last commit
+// $Date:: 2013-01-04 09:32:09 +010#$:  Date of last commit
 //------------------------------------------------------------------------------
 
 Given:
@@ -198,11 +198,8 @@ Satisfying:
     
     // Access control policies - authentication technology specific part
     //--------------------------------------------------------------------------
-    // Claim-based technology specific part
-    //  (1)   : X.509 - non-selective attribute disclosure
-    //  (2)   : X.509 - attribute disclosure when proving certificate ownership
-    Reveal(sp,a,o) <- ? c a0 : CredTech(c,X509) & Reveal(sp,a0,o) & 
-                        CredIssuer(c,o) & CredAttr(c,a) & CredAttr(c,a0).
+    // Claim-based technology specific part    
+    //  (1)   : X.509 - attribute disclosure when proving certificate ownership    
     Reveal(sp,a,o) <- ? c : CredTech(c,X509) & ServPolOwn(sp,c,o) & 
                         CredAttr(c,a).
     
