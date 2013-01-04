@@ -2,9 +2,9 @@
 // ModelPriv.idp
 // $HeadURL: https://www.msec.be/svn/modeling/Projects/ModPrivAndTrustInElecServ/ModelPriv.idp $
 //------------------------------------------------------------------------------
-// $Rev:: 77                        $:  Revision of the last commit
+// $Rev:: 69                        $:  Revision of the last commit
 // $Author:: koen                   $:  Author of last commit
-// $Date:: 2013-01-04 09:32:09 +010#$:  Date of last commit
+// $Date:: 2012-12-14 11:06:51 +010#$:  Date of last commit
 //------------------------------------------------------------------------------
 
 Given:
@@ -160,7 +160,7 @@ Declare:
   ProfilePath(ServPolicy, Organization, Identifier, Attribute, Stakeholder)
   ProfilePathExcl(ServPolicy, Organization, Identifier, Attribute, Stakeholder)
   
-Find:         
+Find:   
   ServOptStored(ServPolicy, Organization, Attribute, Stakeholder)
   ServOptProf(ServPolicy, Organization, Attribute, Stakeholder)    
   ServOptProfN(ServPolicy, Organization, PseudoSet)
@@ -194,12 +194,12 @@ Satisfying:
     //  (3)   : Reveal attributes from profile to service provider    
     Reveal(sp,a,u) <- User(u) & ServPolRevealU(sp,a).
     Reveal(sp,a,o) <- ? c : ServPolRevealC(sp,c,a) & ServPolOwn(sp,c,o).
-    Reveal(sp,a,e) <- ? p : ServPolRevealP(sp,p,a,e).
+    Reveal(sp,a,e) <- ? p : ServPolRevealP(sp,p,a,e).    
     
     // Access control policies - authentication technology specific part
     //--------------------------------------------------------------------------
     // Claim-based technology specific part    
-    //  (1)   : X.509 - attribute disclosure when proving certificate ownership    
+    //  (1)   : X.509 - attribute disclosure when proving certificate ownership
     Reveal(sp,a,o) <- ? c : CredTech(c,X509) & ServPolOwn(sp,c,o) & 
                         CredAttr(c,a).
     
@@ -226,10 +226,13 @@ Satisfying:
   // Service policy store predicate
   //  (1)   : Store specified attributes in profile attached to service policy
   //  (2)   : Store all revealed attributes in profile attached to service
-  //            policy in case of no storage trust
+  //          policy in case of no storage trust
+  //  (3)   : Store attributes that are forwarded from other policies that
+  //          have no distribution trust
   {
     Store(sp,a,e) <- ServPolStore(sp,a,e).
     Store(sp,a,e) <- ~HasStorageTrust(sp) & Reveal(sp,a,e).
+    Store(sp,a,e) <- ? fw : ~HasStorageTrust(sp) & Forward(fw,a,e) & ForwardTo(fw,sp).
   }  
   
   // Service policy forward predicate
