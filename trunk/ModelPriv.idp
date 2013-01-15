@@ -90,6 +90,7 @@ Given:
   type Condition    
   Condition(Condition, Attribute)  
   ServPolSharing(ServPolicy,ServPolicy,Condition)
+  ServPolDependency(ServPolicy,ServPolicy)
   
   ServPolOutputC(ServPolicy, Credential)
   ServPolOutputP(ServPolicy, Profile)  
@@ -119,6 +120,9 @@ Declare:
   //  (2)   : Distribution trust in a service policy    
   HasStorageTrust(ServPolicy)                     
   HasDistributionTrust(ServPolicy)
+  
+  // Service policy dependencies
+  Dependency(ServPolicy, ServPolicy)
   
   // Helper predicates service policies
   //  (1)   : Enabled/disabled service policies
@@ -160,7 +164,7 @@ Declare:
   ProfilePath(ServPolicy, Organization, Identifier, Attribute, Stakeholder)
   ProfilePathExcl(ServPolicy, Organization, Identifier, Attribute, Stakeholder)
   
-Find:   
+Find:
   ServOptStored(ServPolicy, Organization, Attribute, Stakeholder)
   ServOptProf(ServPolicy, Organization, Attribute, Stakeholder)    
   ServOptProfN(ServPolicy, Organization, PseudoSet)
@@ -184,6 +188,15 @@ Satisfying:
     HasDistributionTrust(sp) <- ? s o : DistributionTrust(o) & 
                                 ServPolicy(sp,s,o).
   }  
+  
+  // Determine the dependencies between service policies
+  //  (1)   : Dependency as specified in the model's input part
+  //  (2)   : inductive step : dependency transitivity
+  {
+    Dependency(sp1,sp0) <- ServPolDependency(sp1,sp0).
+    Dependency(sp2,sp0) <- ? sp1 : ServPolDependency(sp2,sp1) & 
+                                   Dependency(sp1,sp0).
+  }
       
   // Service policiy reveal predicate  
   {    
@@ -227,12 +240,9 @@ Satisfying:
   //  (1)   : Store specified attributes in profile attached to service policy
   //  (2)   : Store all revealed attributes in profile attached to service
   //          policy in case of no storage trust
-  //  (3)   : Store attributes that are forwarded from other policies that
-  //          have no distribution trust
   {
     Store(sp,a,e) <- ServPolStore(sp,a,e).
-    Store(sp,a,e) <- ~HasStorageTrust(sp) & Reveal(sp,a,e).
-    Store(sp,a,e) <- ? fw : ~HasStorageTrust(sp) & Forward(fw,a,e) & ForwardTo(fw,sp).
+    Store(sp,a,e) <- ~HasStorageTrust(sp) & Reveal(sp,a,e).    
   }  
   
   // Service policy forward predicate
@@ -278,9 +288,9 @@ Satisfying:
   {
     Path(sp0,sp0) <- PathOrigin(sp0).
     Path(sp0,sp1) <- ? fw0 : PathOrigin(sp0) & ServPolForward(sp0,fw0) & 
-                     ForwardTo(fw0,sp1).
+                     ServPolForwardTo(fw0,sp1).
     Path(sp0,sp2) <- ? sp1 fw1 : Path(sp0,sp1) & ServPolForward(sp1,fw1) & 
-                     ForwardTo(fw1,sp2).
+                     ServPolForwardTo(fw1,sp2).
   }  
   
   // Helper predicate to deduce alternative paths, these are:
@@ -307,10 +317,11 @@ Satisfying:
   // Profiles are constructed from the following two rules: 
   //  (1)   : Attributes that are stored are added to the profile
   //  (2)   : Attributes that are forwarded by preceding service policies are
-  //          added to the profile too when there no storage trust
+  //          added to the profile too when there is no storage trust
   {
     ProfileSP(sp,sp0,a,e) <- Path(sp0,sp) & Store(sp,a,e).
-    ProfileSP(sp,sp0,a,e) <- ? sp1 fw1 : ~HasStorageTrust(sp) & Path(sp0,sp) & 
+    ProfileSP(sp,sp0,a,e) <- ? sp1 fw1 : ~HasStorageTrust(sp) & Path(sp0,sp) &
+                             Path(sp0,sp1) &
                              ServPolForward(sp1,fw1) & ForwardTo(fw1,sp) & 
                              Forward(fw1,a,e).
   } 
@@ -368,7 +379,7 @@ Satisfying:
   //  (1)   : Organizations group data associated with a pseudonymous set
   //          exclude all alternative path to the associated path  
   //  (2)   : Collaborating organizations put their profiles togheter
-  //          -optimalization: Path(sp1,sp) removed --> part of IdSP
+  //          (Path(sp1,sp) removed) --> part of IdSP
   //  (3)   : Recursive step --> profiles of different service policies that 
   //          have a shared identifier possibly compose new pseudonyms.
   //  (4)   : Recursive step --> profiles of different service policies that 
@@ -376,7 +387,7 @@ Satisfying:
   //  (5)   : Attributes in a profile that can be linked to a service policy
   //          profile are always visible to the profile host  
   //----------------------------------------------------------------------------
-  //  Technology dependant
+  //  Technology dependent
   //----------------------------------------------------------------------------
   //  (1)   : Attributes in profiles are visible to profile host (must have co
   //  (2)   : Attributes in profiles are visible to everyone
@@ -387,13 +398,15 @@ Satisfying:
                                      Path(sp0,sp2) & ServPolicy(sp2,s2,o) &
                                      ServPolicy(sp,s,o) &
                                      IdSP(id,sp,sp1) & ProfileSP(sp,sp1,a,e) &
-                                     ~AlterPath(sp1,sp0) & ~(sp0 = sp1).                                     
+                                     ~AlterPath(sp1,sp0) & ~(sp0 = sp1) &
+                                     ~Dependency(sp1,sp0).
     ProfilePathExcl(sp0,o,id,a,e) <- ? col o1 sp sp1 s : PathOrigin(sp0) &                                 
                                      Collaboration(col,o) & 
                                      Collaboration(col,o1) &
                                      ServPolicy(sp,s,o1) &
                                      IdSP(id,sp,sp1) & ProfileSP(sp,sp1,a,e) &
-                                     ~AlterPath(sp1,sp0) & ~(sp0 = sp1).                                 
+                                     ~AlterPath(sp1,sp0) & ~(sp0 = sp1) &
+                                     ~Dependency(sp1,sp0).                                 
     ProfilePathExcl(sp0,o,id,a,e) <- ? col o1 : 
                                      Collaboration(col,o) & 
                                      Collaboration(col,o1) &
@@ -414,12 +427,12 @@ Satisfying:
                                     ProfilePathExcl(sp2,o1,id,a,e).                                
 
     //--------------------------------------------------------------------------
-    //  Technology dependant properties
+    //  Technology dependent properties
     //--------------------------------------------------------------------------
     ProfilePathExcl(sp0,o,id,a,e) <- ? sp s p: Path(sp0,sp) & 
                                      ServPolicy(sp,s,o) & 
                                      ProfHost(p,o) & IdProf(id,p) & 
-                                     ProfAttr(p,a,e).                
+                                     ProfAttr(p,a,e).
     ProfilePathExcl(sp0,o,id,a,e) <- ? sp s p : ProfTech(p,Public) & 
                                      Path(sp0,sp) & ServPolicy(sp,s,o) & 
                                      IdProf(id,p) & ProfAttr(p,a,e).
