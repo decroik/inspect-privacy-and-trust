@@ -176,7 +176,7 @@ Find:
   ProfileHistory(ServPolicy, Organization, Identifier, Attribute, Stakeholder)
   ProfileInfoFlow(ServPolicy, Organization, Identifier, Attribute, Stakeholder)
   ProfileService(ServPolicy, Organization, Identifier, Attribute, Stakeholder)
-  MergedProfilesOrg(ServPolicy, Organization, Identifier, 
+  MergeProfilesOrg(ServPolicy, Organization, Identifier, 
                     Attribute, Stakeholder)
   
 Satisfying:
@@ -455,20 +455,20 @@ Satisfying:
   //  (3)   : inductive step : evaluate for newly created pseudonyms
   //  (4)   : inductive step : evaluate for newly created identities
   {
-    MergedProfilesOrg(sp0,o,id,a,e) <- ProfileService(sp0,o,id,a,e).
+    MergeProfilesOrg(sp0,o,id,a,e) <- ProfileService(sp0,o,id,a,e).
     
-    MergedProfilesOrg(sp0,o,id,a,e) <- ? spc a1 e1 : InfoFlowCompl(sp0,spc) &
+    MergeProfilesOrg(sp0,o,id,a,e) <- ? spc a1 e1 : InfoFlowCompl(sp0,spc) &
                                        ProfileService(spc,o,id,a,e) & 
-                                       MergedProfilesOrg(sp0,o,id,a1,e1).
+                                       MergeProfilesOrg(sp0,o,id,a1,e1).
                                        
-    MergedProfilesOrg(sp0,o,n,a,e) <- ? id0 : PseudoSet(n) &
-                                MergedProfilesOrg(sp0,o,id0,a,e) &
+    MergeProfilesOrg(sp0,o,n,a,e) <- ? id0 : PseudoSet(n) &
+                                MergeProfilesOrg(sp0,o,id0,a,e) &
                                 ~(? a0 : PseudoSetAttr(n,a0) &
-                                ~(? e0 : MergedProfilesOrg(sp0,o,id0,a0,e0))).
+                                ~(? e0 : MergeProfilesOrg(sp0,o,id0,a0,e0))).
                                    
-    MergedProfilesOrg(sp0,o,i,a,e) <- ? id0 : IdentSet(i) &
-                                MergedProfilesOrg(sp0,o,id0,a,e) &
+    MergeProfilesOrg(sp0,o,i,a,e) <- ? id0 : IdentSet(i) &
+                                MergeProfilesOrg(sp0,o,id0,a,e) &
                                 ~(? a0 : IdentSetAttr(i,a0) &
-                                ~(? e0 : MergedProfilesOrg(sp0,o,id0,a0,e0))).                                        
+                                ~(? e0 : MergeProfilesOrg(sp0,o,id0,a0,e0))).                                        
   }
   
