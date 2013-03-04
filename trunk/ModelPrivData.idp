@@ -1,0 +1,242 @@
+//------------------------------------------------------------------------------
+// ModelPrivData.idp
+// $HeadURL: https://www.msec.be/svn/modeling/Projects/ModPrivAndTrustInElecServ/ModelPrivData.idp $
+//------------------------------------------------------------------------------
+// $Rev:: 58                        $:  Revision of the last commit
+// $Author:: koen                   $:  Author of last commit
+// $Date:: 2012-11-26 14:08:47 +010#$:  Date of last commit
+//------------------------------------------------------------------------------
+
+Data:
+  //----------------------------------------------------------------------------
+  // Attribute sources
+  //----------------------------|-----------------------------------------------
+  AttrSrc = {
+    User;                       // fixed
+    Gov; Univ;
+    WebStore; Delivery;
+    IdCard; IdAnonCard; StudCard;
+    DeliveryProf;
+    OrderIdSP; OrderIdAnonSP; OrderIdStudSP; OrderIdAnonStudSP;
+    ConfirmSP;
+    SendSP; DeliverSP;
+    ProfDelivery;
+  }
+  
+  //----------------------------------------------------------------------------
+  // System stakeholders
+  //----------------------------|-----------------------------------------------
+  Stakeholder = {               // type
+    User;                       // fixed 
+    Gov; Univ;
+    WebStore; Delivery;        
+  }
+  
+  User = {                      // type - fixed
+    User;
+  }
+  
+  Organization = {              // type
+    Gov; Univ;
+    WebStore; Delivery;
+  } 
+  
+  //----------------------------------------------------------------------------
+  //  User trust relations
+  //----------------------------|-----------------------------------------------  
+  StorageTrust = {              // (Organization)
+    //WebStore; Delivery;
+  }
+  
+  DistributionTrust = {         // (Organization)
+    //WebStore; Delivery;
+  }
+  
+  //----------------------------------------------------------------------------
+  // Attributes, identity set and pseudonymous set
+  //----------------------------------------------------------------------------  
+  Attribute = {                 // type
+    Name; Address; DoB; SSN; Institute; OrderNumber;
+  }
+  
+  Identifier = {                // type
+    IUser; NSSN; ON;
+  }
+  
+  IdentSet = {                  // type
+    IUser;
+  }
+  
+  PseudoSet = {                 // type
+    NSSN; ON;
+  }
+  
+  IdentSetAttr = {              // (IdentSet, Attribute)
+    IUser,Name; IUser,Address;
+  }
+  
+  PseudoSetAttr = {             // (PseudoSet, Attribute)
+    NSSN,SSN; ON,OrderNumber;
+  }
+  
+  //----------------------------------------------------------------------------
+  // Credentials
+  //----------------------------|-----------------------------------------------
+  Credential = {                // type
+    IdCard; IdAnonCard; StudCard;
+  }
+  
+  CredAttr = {                  // (Credential, Attribute)
+    IdCard,Name; IdCard,Address; IdCard,DoB; IdCard,SSN;
+    IdAnonCard,Name; IdAnonCard,Address; IdAnonCard,DoB; IdAnonCard,SSN;
+    StudCard,Name; StudCard,Address; StudCard,Institute;
+  }
+  
+  CredTech = {                  // (Credential, ClaimBasedTech)
+    IdCard,X509; IdAnonCard,Idemix; StudCard,X509;
+  }
+  
+  CredIssuer = {                // (Credential, Organization)
+    IdCard,Gov; IdAnonCard,Gov; StudCard,Univ;
+  } 
+  
+  //----------------------------------------------------------------------------
+  // Profiles
+  //----------------------------|-----------------------------------------------  
+  Profile = {                   // type 
+    ProfDelivery;
+  }
+  
+  ProfAttr = {                  // (Profile, Attribute, Stakeholder)    
+    ProfDelivery,OrderNumber,WebStore;
+    ProfDelivery,Name,User;
+    ProfDelivery,Address,User;
+  }
+  
+  ProfTech = {                  // (Profile, NetworkBasedTech)
+    ProfDelivery,Private;
+  }
+  
+  ProfHost = {                  // (Profile, Organization)
+    ProfDelivery,Delivery;
+  }
+  
+  ProfAccess = {                // (Profile, Organization)
+  }
+  
+  //----------------------------------------------------------------------------
+  // Services and service policies
+  //----------------------------|-----------------------------------------------
+  Service = {                   // type
+    Order; Send; Deliver; Confirm; Test;
+  }
+  
+  ServPolicy = {                // type
+    OrderIdSP; OrderIdAnonSP; OrderIdStudSP; OrderIdAnonStudSP;
+    ConfirmSP;
+    SendSP; DeliverSP;
+  }
+  
+  ServPolicySO = {              // (ServPolicy, Service, Organization)
+    OrderIdSP,Order,WebStore; OrderIdAnonSP,Order,WebStore;
+    OrderIdStudSP,Order,WebStore; OrderIdAnonStudSP,Order,WebStore;    
+    ConfirmSP,Confirm,WebStore;
+    SendSP,Send,Delivery; DeliverSP,Deliver,Delivery;    
+  }  
+  
+  ServPolOwn = {                // (ServPolicy, Credential, Organization)
+    OrderIdSP,IdCard,Gov; 
+    OrderIdAnonSP,IdAnonCard,Gov;
+    OrderIdStudSP,IdCard,Gov; OrderIdStudSP,StudCard,Univ;
+    OrderIdAnonStudSP,IdAnonCard,Gov; OrderIdAnonStudSP,StudCard,Univ;    
+  }
+  
+  ServPolReveal = {          // (ServPolicy, AttrSrc, Attribute, Stakeholder)
+    // Attributes from user input
+    SendSP,User,Name,User; SendSP,User,Address,User;
+    
+    // Attributes from credentials
+    OrderIdSP,IdCard,DoB,Gov;    
+    OrderIdAnonSP,IdAnonCard,DoB,Gov;    
+    OrderIdStudSP,IdCard,DoB,Gov; OrderIdStudSP,StudCard,Institute,Gov;    
+    OrderIdAnonStudSP,IdAnonCard,DoB,Gov;
+    OrderIdAnonStudSP,StudCard,Institute,Gov;    
+    
+    // Attributes from external organizations
+    SendSP,WebStore,OrderNumber,WebStore;
+    ConfirmSP,Delivery,OrderNumber,WebStore;
+    
+    // Attributes created by service policy
+    OrderIdSP,OrderIdSP,OrderNumber,WebStore;    
+    OrderIdAnonSP,OrderIdAnonSP,OrderNumber,WebStore;
+    OrderIdStudSP,OrderIdStudSP,OrderNumber,WebStore;
+    OrderIdAnonStudSP,OrderIdAnonStudSP,OrderNumber,WebStore;
+    
+    // Attributes from a profile
+    DeliverSP,ProfDelivery,OrderNumber,WebStore;
+  }
+  
+  ServPolStore = {              // (ServPolicy, Attribute, Stakeholder)
+    OrderIdSP,OrderNumber,WebStore; OrderIdAnonSP,OrderNumber,WebStore; 
+    OrderIdStudSP,OrderNumber,WebStore; OrderIdAnonStudSP,OrderNumber,WebStore;  
+    SendSP,Name,User; SendSP,Address,User; SendSP,OrderNumber,WebStore;
+    DeliverSP,Name,User; DeliverSP,Address,User; DeliverSP,OrderNumber,User;
+    ConfirmSP,OrderNumber,WebStore;
+  }
+  
+  ServPolDist = {            // type
+    OrderIdFW; OrderIdAnonFW; OrderIdStudFW; OrderIdAnonStudFW;
+    DeliverFW;
+  }
+  
+  ServPolDistFromTo = {        // (ServPolForward, ServPolicy, ServPolicy)
+    OrderIdFW,OrderIdSP,SendSP;
+    OrderIdAnonFW,OrderIdAnonSP,SendSP;
+    OrderIdStudFW,OrderIdStudSP,SendSP;
+    OrderIdAnonStudFW,OrderIdAnonStudSP,SendSP;
+    DeliverFW,DeliverSP,ConfirmSP;    
+  }
+  
+  ServPolDistFwAttr = {      // (ServPolForward, Attribute, Stakeholder)
+    OrderIdFW,OrderNumber,WebStore;
+    OrderIdAnonFW,OrderNumber,WebStore;
+    OrderIdStudFW,OrderNumber,WebStore;
+    OrderIdAnonStudFW,OrderNumber,WebStore;
+    DeliverFW,OrderNumber,WebStore;
+  }
+  
+  ServPolOutputC = {            // (ServPolicy, Credential)    
+  }
+  
+  ServPolOutputP = {            // (ServPolicy, Profile)
+    SendSP,ProfDelivery;
+  }
+  
+  //----------------------------------------------------------------------------
+  // Behavioral aspects related to service policies
+  //----------------------------------------------------------------------------  
+  ServPolEnabledBy = {          // (ServPolicy,ServPolicy)  
+    DeliverSP,SendSP;
+  }
+  
+  Purpose = {                   // type
+    PurposeOrder; PurposeDeliver;
+  }
+  
+  PurposeSP = {                 // (Purpose,ServPolicy)
+    PurposeOrder,OrderIdSP; PurposeOrder,OrderIdAnonSP;
+    PurposeOrder,OrderIdStudSP; PurposeOrder,OrderIdAnonStudSP;
+    PurposeDeliver,DeliverSP;
+  }
+  
+  OneTimePurpose = {            // (Purpose)
+  
+  }
+  
+  Collaboration = {             // type
+    CollNA;
+  }
+  
+  CollaborationOrg = {          // (Collaboration, Organization)
+    
+  }

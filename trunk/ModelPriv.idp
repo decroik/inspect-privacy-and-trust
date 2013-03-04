@@ -2,10 +2,16 @@
 // ModelPriv.idp
 // $HeadURL: https://www.msec.be/svn/modeling/Projects/ModPrivAndTrustInElecServ/ModelPriv.idp $
 //------------------------------------------------------------------------------
-// $Rev:: 69                        $:  Revision of the last commit
+// $Rev:: 79                        $:  Revision of the last commit
 // $Author:: koen                   $:  Author of last commit
-// $Date:: 2012-12-14 11:06:51 +010#$:  Date of last commit
+// $Date:: 2013-01-15 13:24:33 +010#$:  Date of last commit
 //------------------------------------------------------------------------------
+
+// Note: some aspects are not included in this version for simplicity.  Only the
+//       main aspects that are referenced in the paper are included
+//        - collaborations (symmetric and asymmetric) are not included
+//        - no user defined policies
+//        - no verification of user defined policies
 
 Given:
   //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -17,494 +23,452 @@ Given:
   }
   
   type NetworkBasedTech = {
-    Public; Filtered; Private;
-  }
+    Public; RestrictedAccess; Private;
+  }  
     
   //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   //  System specification
   //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++    
-  type Stakeholder                        // Stakeholders in the organization
+  type AttrSrc  
+  
+  type Stakeholder isa AttrSrc         // Stakeholders in the organization
   type User isa Stakeholder               // User in the system : set U
   type Organization isa Stakeholder       // Organizations in the system : set O 
   
-  type Service                            // Services in the system : set S
-    
-  type Attribute                          // Attributes in the system : set A  
-  
-  type Identifier                         // Identifier set
-  type IdentSet isa Identifier            // Identity set : set I
-  type PseudoSet isa Identifier           // Pseudonymity set : set N
-    
-  IdentSet(IdentSet, Attribute)           // Identity set
-  PseudoSet(PseudoSet, Attribute)         // Pseudonymity set
-  
   //----------------------------------------------------------------------------
-  // Credential is defined by three predicates
-  //----------------------------------------------------------------------------
-  type Credential           // Credential identifiers : credential construction
-  
-  CredAttr(Credential, Attribute)  
-  CredTech(Credential, ClaimBasedTech)
-  CredIssuer(Credential, Organization)    // role issuer  
-  //----------------------------------------------------------------------------
-  
-  //----------------------------------------------------------------------------
-  //  User trust relations exist of two trust relations
+  //  User trust relations: two trust relations
   //----------------------------------------------------------------------------
   StorageTrust(Organization)              //set T_(U,S)
   DistributionTrust(Organization)         //set T_(U,D)
   //----------------------------------------------------------------------------
   
   //----------------------------------------------------------------------------
-  // Profiles
-  //----------------------------------------------------------------------------  
-  type Profile
+  // Attributes, identity set and pseudonymous set
+  //----------------------------------------------------------------------------      
+  type Attribute                          // Attributes in the system : set A  
   
-  ProfAttr(Profile, Attribute, Stakeholder) 
-  ProfTech(Profile, NetworkBasedTech)
-  ProfHost(Profile, Organization)
-  ProfRestrictAccess(Profile, Organization)
+  type Identifier                         // Identifier set
+  type IdentSet isa Identifier            // Identity set : set I
+  type PseudoSet isa Identifier           // Pseudonymity set : set N
+    
+  IdentSetAttr(IdentSet, Attribute)       // Attr member of the Identity set
+  PseudoSetAttr(PseudoSet, Attribute)     // Attr member of the Pseudonymity set    
+  
+  //----------------------------------------------------------------------------
+  // Claim-based authentication technologies
+  //----------------------------------------------------------------------------
+  type Credential isa AttrSrc          // Credential references
+  
+  CredAttr(Credential, Attribute)         // attribute of credential  
+  CredTech(Credential, ClaimBasedTech)    // technology of credential
+  CredIssuer(Credential, Organization)    // organization that issues credential
+  //----------------------------------------------------------------------------
+  
+  //----------------------------------------------------------------------------
+  // Network-based authentication technologies
+  //----------------------------------------------------------------------------  
+  type Profile isa AttrSrc                 // Profile references
+  
+  ProfAttr(Profile, Attribute, Stakeholder)   // (attr,stake) in profile
+  ProfTech(Profile, NetworkBasedTech)         // Profile technology
+  ProfHost(Profile, Organization)             // Organization that host profile
+  ProfAccess(Profile, Organization)           // Access control on profile
   //----------------------------------------------------------------------------
   
   //----------------------------------------------------------------------------
   // Service policies
-  //----------------------------------------------------------------------------
-  type ServPolicy    
-  ServPolicy(ServPolicy, Service, Organization)     
+  //----------------------------------------------------------------------------  
+  type Service                            // Services in the system : set S
   
-  ServPolOwn(ServPolicy, Credential, Organization) 
+  type ServPolicy isa AttrSrc 
   
-  ServPolRevealU(ServPolicy, Attribute)
-  ServPolRevealC(ServPolicy, Credential, Attribute)
-  ServPolRevealP(ServPolicy, Profile, Attribute, Stakeholder)  
-  ServPolRevealO(ServPolicy, Attribute, Stakeholder)  
+  // Service Policy relates to exactly one tuple <service,organization> 
+  // (= Sigma)
+  ServPolicySO(ServPolicy, Service, Organization)   
   
+  // Access control policy
+  // Proof credential ownership, credential issued by an organization
+  ServPolOwn(ServPolicy, Credential, Organization)     
+  
+  // Reveal attributes from an attribute source asserted by a stakeholder
+  // E.g., Stakeholder of attributes from user input is the 'User'
+  ServPolReveal(ServPolicy, AttrSrc, Attribute, Stakeholder)
+    
+  // Storage policy
   ServPolStore(ServPolicy, Attribute, Stakeholder)
   
-  type ServPolForward
-  ServPolForward(ServPolicy, ServPolForward)
-  ServPolForward(ServPolForward, Attribute, Stakeholder)  
-  ServPolForwardTo(ServPolForward, ServPolicy)
+  // Distribution policy
+  type ServPolDist
   
-  //conditional service policy
-  type Condition    
-  Condition(Condition, Attribute)  
-  ServPolSharing(ServPolicy,ServPolicy,Condition)
-  ServPolDependency(ServPolicy,ServPolicy)
+  // Each ServPolDist reference belongs to one service policy and 
+  // possibly multiple destination service policies
+  ServPolDistFromTo(ServPolDist, ServPolicy, ServPolicy)
+  ServPolDistFwAttr(ServPolDist, Attribute, Stakeholder) 
   
+  // Output policy
   ServPolOutputC(ServPolicy, Credential)
   ServPolOutputP(ServPolicy, Profile)  
-  //----------------------------------------------------------------------------  
   
-  //----------------------------------------------------------------------------  
-  // Inferences
-  //----------------------------------------------------------------------------  
-  type ServGroup
+  //----------------------------------------------------------------------------
+  // Behavioral aspects related to service policies
+  //----------------------------------------------------------------------------
+    
+  // Service Policies that are enabled after a previous service policy.  This
+  // allows to express an order for service policies
+  // e.g., services are enabled after a user registers to it.
+  ServPolEnabledBy(ServPolicy,ServPolicy)  
   
-  ServGroup(ServGroup, Service, Organization)
-  AlternativeGroup(ServGroup, ServGroup)
+  // Service Policy purpose determines the alternative policies
+  type Purpose
+  PurposeSP(Purpose,ServPolicy)
   
+  // Some service policies with a shared purpose are only executed once.  E.g.,
+  // a registration service
+  OneTimePurpose(Purpose)
+  
+  // Collaboration between organizations (asymmetric collaboration relation)
   type Collaboration
-  
-  Collaboration(Collaboration, Organization)
-
-  type OrgDomain
-  OrgDomain(OrgDomain, Organization)
-  UserPolRevealNotAllow(OrgDomain, Attribute)
-  UserPolRevealNotAllowId(OrgDomain, Identifier)
-  ConditionFulfilled(Condition)
+  CollaborationOrg(Collaboration, Organization)
   
 Declare:
-  // Helper predicates trust relations
-  //  (1)   : Storage trust in a service policy
-  //  (2)   : Distribution trust in a service policy    
-  HasStorageTrust(ServPolicy)                     
-  HasDistributionTrust(ServPolicy)
+  HasStorageTrust(ServPolicy)
+  HasDistributionTrust(ServPolicy)   
   
-  // Service policy dependencies
-  Dependency(ServPolicy, ServPolicy)
+  InfoFlowOrigin(ServPolicy)  
+  InfoFlowTo(ServPolicy, ServPolicy)
+  InfoFlowNext(ServPolicy, ServPolicy, ServPolicy)
+  InfoFlowSeq(ServPolicy, ServPolicy, ServPolicy)
+  InfoFlowAlter(ServPolicy, ServPolicy) 
+  InfoFlowCompl(ServPolicy, ServPolicy)  
+  HistorySP(ServPolicy,ServPolicy)
   
-  // Helper predicates service policies
-  //  (1)   : Enabled/disabled service policies
-  ServPolCondFulfilled(ServPolicy)
+  RevealACAttr(ServPolicy, Attribute, Stakeholder)  
+  StoreAttr(ServPolicy, Attribute, Stakeholder)
+  DistAttr(ServPolicy, ServPolicy, Attribute, Stakeholder)
+  DistFromTo(ServPolicy, ServPolicy, ServPolicy)
   
-  // Service policy specification related predicates
-  //  (1)   : Revealed attributes that are not forwarded from somewhere  
-  Reveal(ServPolicy, Attribute, Stakeholder) 
+  RevealDistAttr(ServPolicy, ServPolicy, Attribute, Stakeholder)
+  InfoFlowStoreAttr(ServPolicy, Organization, Attribute, Stakeholder)
+  InfoFlowStoreId(ServPolicy, Organization, Identifier)
+  HistoryStoreAttr(ServPolicy, ServPolicy, Organization, Attribute, Stakeholder)
   
-  //  (1)   : Forwarded attributes that are not forwarded from somewhere
-  //  (2)   : Stored attributes that are not forwarded from somewhere
-  //  (3)   : Attributes that are stored in profiles that are not forwarded
-  //          from somewhere
-  //  (4)   : Associates target policies with forward policy, used for
-  //          the construction profiles that depends on the (s,o)-path
-  Store(ServPolicy, Attribute, Stakeholder)
-  StoreIn(ServPolicy, Attribute, Stakeholder, Profile)
-  Forward(ServPolForward, Attribute, Stakeholder)
-  ForwardTo(ServPolForward, ServPolicy) 
-  
-  // Paths of service policies
-  //  (1)   : Service policy that initiates a service policy chain - path
-  //  (2)   : Service policy end point
-  //  (3)   : Service policy chain - path, PathOrigin to service policy in chain  
-  //  (4)   : Alternative service policy paths
-  PathOrigin(ServPolicy)
-  PathEnd(ServPolicy)
-  Path(ServPolicy, ServPolicy)
-  AlterPath(ServPolicy, ServPolicy)
-  
-  // Profiles
-  //  (1)   : Profile related with service policy
-  //          ProfileSP( profile owner, path origin, ...)  
-  ProfileSP(ServPolicy, ServPolicy, Attribute, Stakeholder)
-  
-  IdSP(Identifier, ServPolicy, ServPolicy)
-  IdProf(Identifier, Profile)
-     
-  ProfilePath(ServPolicy, Organization, Identifier, Attribute, Stakeholder)
-  ProfilePathExcl(ServPolicy, Organization, Identifier, Attribute, Stakeholder)
-  
+  //ProfileHistory(ServPolicy, Organization, Identifier, Attribute, Stakeholder)
+  //ProfileInfoFlow(ServPolicy, Organization, Identifier, Attribute, Stakeholder)
+  //ProfileService(ServPolicy, Organization, Identifier, Attribute, Stakeholder)
+
 Find:
-  ServOptStored(ServPolicy, Organization, Attribute, Stakeholder)
-  ServOptProf(ServPolicy, Organization, Attribute, Stakeholder)    
-  ServOptProfN(ServPolicy, Organization, PseudoSet)
-  ServOptProfI(ServPolicy, Organization, IdentSet)
-  ServOptProfAnon(ServPolicy, Organization)
-  ServOptProfAnon(ServPolicy)   
-  UserPolViolationReveal(ServPolicy, OrgDomain, Organization, Attribute)
-  UserPolViolationRevealId(ServPolicy, OrgDomain, Organization, Identifier)
-    
-Satisfying:  
+  //InfoFlowTo(ServPolicy, ServPolicy)
+  //InfoFlowNext(ServPolicy, ServPolicy, ServPolicy)
+  //InfoFlowAlter(ServPolicy, ServPolicy)
+  //InfoFlowCompl(ServPolicy, ServPolicy)    
+  //HistorySP(ServPolicy,ServPolicy)  
+  
+  //RevealACAttr(ServPolicy, Attribute, Stakeholder)
+  //StoreAttr(ServPolicy, Attribute, Stakeholder)
+  //DistAttr(ServPolicy, ServPolicy, Attribute, Stakeholder)
+  //DistFromTo(ServPolicy, ServPolicy, ServPolicy)
+  
+  //RevealDistAttr(ServPolicy, ServPolicy, Attribute, Stakeholder)
+  //InfoFlowStoreAttr(ServPolicy, Organization, Attribute, Stakeholder)
+  //InfoFlowStoreId(ServPolicy, Organization, Identifier)
+  //HistoryStoreAttr(ServPolicy, ServPolicy, Organization, Attribute, Stakeholder)
+  
+  ProfileHistory(ServPolicy, Organization, Identifier, Attribute, Stakeholder)
+  ProfileInfoFlow(ServPolicy, Organization, Identifier, Attribute, Stakeholder)
+  ProfileService(ServPolicy, Organization, Identifier, Attribute, Stakeholder)
+  MergedProfilesOrg(ServPolicy, Organization, Identifier, 
+                    Attribute, Stakeholder)
+  
+Satisfying:
   // Helper predicate for storage trust in an organization
   //  (1)   : Each service policy adopts the storage trust of the organization
   {
-    HasStorageTrust(sp) <- ? s o : StorageTrust(o) & ServPolicy(sp,s,o).
+    HasStorageTrust(sp) <- ? s o : StorageTrust(o) & ServPolicySO(sp,s,o).
   }
   
-  // Helper predicate for distribution trust in an organization
+  // Helper predicate for distribution trust in a service policy
   //  (1)   : Each service policy adopts the distribution trust of the 
   //          organization
   {
     HasDistributionTrust(sp) <- ? s o : DistributionTrust(o) & 
-                                ServPolicy(sp,s,o).
+                                ServPolicySO(sp,s,o).
   }  
   
-  // Determine the dependencies between service policies
-  //  (1)   : Dependency as specified in the model's input part
-  //  (2)   : inductive step : dependency transitivity
+  // Determine the origin of the info-flow
+  //  (1)   : The origin service policy has no input from external organizations
   {
-    Dependency(sp1,sp0) <- ServPolDependency(sp1,sp0).
-    Dependency(sp2,sp0) <- ? sp1 : ServPolDependency(sp2,sp1) & 
-                                   Dependency(sp1,sp0).
+    InfoFlowOrigin(sp) <- ~(? o a e : Organization(o) & 
+                          ServPolReveal(sp,o,a,e)).
+  }  
+  
+  // Determine all the service policies that are part of the info-flow that
+  // is referenced by the origin of the info-flow.
+  //  (1)   : initial step: the origin is an info-flow to itself
+  //  (2)   : initial step: the info-flow between the origin and an adjecent 
+  //                        service policy
+  //  (3)   : inductive step : the info-flow between the origin and an 
+  //                           non-adjecent service policy
+  {
+    InfoFlowTo(sp0,sp0) <- InfoFlowOrigin(sp0).
+    InfoFlowTo(sp0,sp1) <- ? fw0 : InfoFlowOrigin(sp0) & 
+                           ServPolDistFromTo(fw0,sp0,sp1).
+    InfoFlowTo(sp0,sp2) <- ? sp1 fw1 : InfoFlowTo(sp0,sp1) & 
+                            ServPolDistFromTo(fw1,sp1,sp2).
   }
-      
-  // Service policiy reveal predicate  
+  
+  // Determine service policy sequences within an info-flow
+  //  (1)   : initial step
+  //  (2)   : inductive step
+  {    
+    InfoFlowNext(sp0,sp1,sp2) <- ? fw1 : InfoFlowTo(sp0,sp1) & 
+                                ServPolDistFromTo(fw1,sp1,sp2).
+  }
+  
+  {
+    InfoFlowSeq(sp0,sp1,sp2) <- InfoFlowNext(sp0,sp1,sp2).
+    InfoFlowSeq(sp0,sp1,sp3) <- ? sp2 : InfoFlowSeq(sp0,sp1,sp2) & 
+                                InfoFlowNext(sp0,sp2,sp3).
+  }
+  
+  // Determine service policies that are alternative info-flows
+  //  (1)   : Service policies that are origin with the same purpose are
+  //          each others alternative.
+  {
+    InfoFlowAlter(sp0,spa) <- ? p : sp0 ~= spa &
+                              InfoFlowOrigin(sp0) & InfoFlowOrigin(spa) &
+                              PurposeSP(p,sp0) & PurposeSP(p,spa).             
+  }
+  
+  // Determine service policies that are complementary info-flows
+  {
+    InfoFlowCompl(sp0,spa) <- sp0 ~= spa &
+                              InfoFlowOrigin(sp0) & InfoFlowOrigin(spa) &
+                              ~InfoFlowAlter(sp0,spa).                              
+  }  
+  
+  // The history for each referenced service policy
+  //  (1)   : initial step : all complementary service policies that are member
+  //                         of an info-flow that is not enabled by another 
+  //                         service policy
+  //  (2)   : inductive step : service policies that are enabled by service
+  //                           policies of the history
+  {
+    HistorySP(sp0,sp) <- ? sp1 : InfoFlowCompl(sp0,sp1) & InfoFlowTo(sp1,sp) & 
+                         ~(? spx : ServPolEnabledBy(sp1,spx)).
+    HistorySP(sp0,sp) <- ? spH : HistorySP(sp0,spH) & InfoFlowTo(spH,sp) &
+                         ServPolEnabledBy(sp,spH).
+  }
+  
+  // Determine the revealed attributes specified on the access control section
+  // in the service policies
   {    
     // Access control policies - generic part
     //--------------------------------------------------------------------------
-    //  (1)   : Reveal user input attributes to service provider
-    //  (2)   : Reveal attributes from credential to service provider
-    //  (3)   : Reveal attributes from profile to service provider    
-    Reveal(sp,a,u) <- User(u) & ServPolRevealU(sp,a).
-    Reveal(sp,a,o) <- ? c : ServPolRevealC(sp,c,a) & ServPolOwn(sp,c,o).
-    Reveal(sp,a,e) <- ? p : ServPolRevealP(sp,p,a,e).    
+    //  (1)   : Reveal user input attributes that are specified in service pol
+    //  (2)   : Reveal credential attributes that are specified in service pol
+    //  (3)   : Reveal profile attributes that are specified in service pol
+    //  (4)   : Reveal attributes generated by the host that are specified
+    RevealACAttr(sp,a,e) <- ? u : ServPolReveal(sp,u,a,e) & e = u.    
+    RevealACAttr(sp,a,o) <- ? c : Credential(c) & ServPolOwn(sp,c,o) & 
+                             ServPolReveal(sp,c,a,o).
+    RevealACAttr(sp,a,e) <- ? p : Profile(p) & ServPolReveal(sp,p,a,e).
+    RevealACAttr(sp,a,e) <- ? o : Organization(o) & ServPolReveal(sp,o,a,e).
+    RevealACAttr(sp,a,o) <- ? sp1 s1 : ServPolicySO(sp1,s1,o) & 
+                              ServPolReveal(sp,sp1,a,o) & sp = sp1.
     
     // Access control policies - authentication technology specific part
     //--------------------------------------------------------------------------
     // Claim-based technology specific part    
-    //  (1)   : X.509 - attribute disclosure when proving certificate ownership
-    Reveal(sp,a,o) <- ? c : CredTech(c,X509) & ServPolOwn(sp,c,o) & 
-                        CredAttr(c,a).
+    //  (1)   : X.509 - reveal all credential attributes of required X509 cert
+    RevealACAttr(sp,a,o) <- ? c : CredTech(c,X509) & ServPolOwn(sp,c,o) & 
+                             CredAttr(c,a).
     
     // Network-based technology specific part    
     //  (1)   : Public profiles : non-selective attribute disclosure to all
     //          organizations
-    //  (2)   : Filtered profiles : non-selective attribute disclosure only to
-    //          authorized organizations    
-    Reveal(sp,a,e) <- ? p a1 e1 : ProfTech(p,Public) & 
-                      ServPolRevealP(sp,p,a1,e1) & ProfAttr(p,a,e).                      
-    Reveal(sp,a,e) <- ? p a1 e1 : ProfTech(p,Filtered) & 
-                      ServPolRevealP(sp,p,a1,e1) & ProfAttr(p,a,e).
+    //  (2)   : RestrictedAccess profiles : non-selective attribute disclosure 
+    //          to authorized organizations
+    //  (3)   : Private profile : non-selective attribute disclosure to 
+    //          profile's host
+    RevealACAttr(sp,a,e) <- ? p a1 e1 : ProfTech(p,Public) & 
+                             ServPolReveal(sp,p,a1,e1) & ProfAttr(p,a,e).
+                             
+    RevealACAttr(sp,a,e) <- ? s o p a1 e1 : ProfTech(p,RestrictedAccess) & 
+                            ServPolReveal(sp,p,a1,e1) & ProfAttr(p,a,e) & 
+                            ProfAccess(p,o) & ServPolicySO(sp,s,o).
+                            
+    RevealACAttr(sp,a,e) <- ? s o p a1 e1 : ProfTech(p,Private) & 
+                            ServPolReveal(sp,p,a1,e1) & ProfAttr(p,a,e) & 
+                            ProfHost(p,o) & ServPolicySO(sp,s,o).
     
     // Output policies - technology specific part
     //--------------------------------------------------------------------------
     //  (1)   : Attributes in X.509 certificate are revealed to service provider
     //  (2)   : Attrbiutes in profile are revealed to service provider
     //--------------------------------------------------------------------------
-    Reveal(sp,a,o) <- ? c s : ServPolOutputC(sp,c) & CredTech(c,X509) & 
-                      ServPolicy(sp,s,o) & CredAttr(c,a).        
-    Reveal(sp,a,e) <- ? p : ServPolOutputP(sp,p) & ProfAttr(p,a,e).   
+    RevealACAttr(sp,a,o) <- ? c s : ServPolOutputC(sp,c) & CredTech(c,X509) & 
+                          ServPolicySO(sp,s,o) & CredAttr(c,a).        
+    RevealACAttr(sp,a,e) <- ? p : ServPolOutputP(sp,p) & ProfAttr(p,a,e).   
+  } 
+  
+  // Determine the stored attributes based on the storage specifications in the
+  // service policies
+  //  (1)   : store attributes that are specified in the service policy
+  //  (2)   : store all revealed attributes in case of no storage trust
+  {
+    StoreAttr(sp,a,e) <- HasStorageTrust(sp) & ServPolStore(sp,a,e).
+    StoreAttr(sp,a,e) <- ~HasStorageTrust(sp) & RevealACAttr(sp,a,e).    
   }
   
-  // Service policy store predicate
-  //  (1)   : Store specified attributes in profile attached to service policy
-  //  (2)   : Store all revealed attributes in profile attached to service
-  //          policy in case of no storage trust
-  {
-    Store(sp,a,e) <- ServPolStore(sp,a,e).
-    Store(sp,a,e) <- ~HasStorageTrust(sp) & Reveal(sp,a,e).    
-  }  
-  
-  // Service policy forward predicate
+  // Determine the forwarded attributes based on the distribution section in the
+  // service policies
   //  (1)   : Forward specified attributes
   //  (2)   : Forward all revealed attributes in case of no distribution trust
   {
-    Forward(fw,a,e) <- ServPolForward(fw,a,e).
-    Forward(fw,a,e) <- ? sp : ~HasDistributionTrust(sp) & 
-                       ServPolForward(sp,fw) & Reveal(sp,a,e).
+    DistAttr(sp0,spIn,a,e) <- ? sp fwIn : HasDistributionTrust(spIn) &                            
+                              InfoFlowTo(sp0,spIn) &
+                              ServPolDistFromTo(fwIn,spIn,sp) &
+                              ServPolDistFwAttr(fwIn,a,e).
+                           
+    DistAttr(sp0,spIn,a,e) <- ~HasDistributionTrust(spIn) &                            
+                              InfoFlowTo(sp0,spIn) &                           
+                              RevealACAttr(spIn,a,e).
   }
   
-  // Service policy forward-to predicate
-  //  (1)   : Forward-to data under the scope of the specified service policy
-  //  (2)   : Forward-to data in case of no trust in service policies in the 
-  //          chain of service policies
+  // Determine the destination service policies related to distribution policies
+  //  (1)   : initial step : forward attributes from the input service policy 
+  //                         to the next service policy in the info-flow.  
+  //  (2)   : inductive step : terminate forwarding when attributes are
+  //                           forwarded by an info-flow successor of the
+  //                           destination service policy.
   {
-    ForwardTo(fw,sp) <- ServPolForwardTo(fw,sp).
-    ForwardTo(fw0,sp2) <- ? sp1 fw1 : ~HasDistributionTrust(sp1) & 
-                          ForwardTo(fw0,sp1) & 
-                          ServPolForward(sp1,fw1) & ServPolForwardTo(fw1,sp2).
-  }
-  
-  // Helper predicates to deduce the origin of a service policy chain
-  //  (1)   : The origin of a service policy chain requires no attributes
-  //          that are forwarded by an external organization
-  {
-    PathOrigin(sp) <- ~(? a s : ServPolRevealO(sp,a,s)).
-  }
-  
-  // Helper predicate to deduce the end of a service policy chain
-  //  (1)   : the end of a service policy chain has no forward policy part
-  {
-    PathEnd(sp) <- ~(? fw : ServPolForward(sp,fw)).
-  }
-  
-  // Helper predicates to deduce the single path from a service policy chain's
-  // origin to a certain service policy
-  //  (1)   : The origin is a path to itself = initial rule
-  //  (2)   : Path between the origin and an adjecent service policy
-  //          = initial rule
-  //  (3)   : Path between the origin and an non-adjecent service policy
-  //          = inductive rule
-  {
-    Path(sp0,sp0) <- PathOrigin(sp0).
-    Path(sp0,sp1) <- ? fw0 : PathOrigin(sp0) & ServPolForward(sp0,fw0) & 
-                     ServPolForwardTo(fw0,sp1).
-    Path(sp0,sp2) <- ? sp1 fw1 : Path(sp0,sp1) & ServPolForward(sp1,fw1) & 
-                     ServPolForwardTo(fw1,sp2).
-  }  
-  
-  // Helper predicate to deduce alternative paths, these are:
-  //  (1)   : Service policies from the same organization that have an identic
-  //          service identifier are alternatives.
-  //  (2)   : Service policies from service groups that are specified as
-  //          alternatives
-  //  (3)   : Cummutative rule because rule (2) is not commutative because of 
-  //          the AlternativeGroup-relation that is not commutative.
-  {    
-    AlterPath(sp0,spa) <- ? s o : PathOrigin(spa) & PathOrigin(sp0) & 
-                          spa ~= sp0 &
-                          ServPolicy(sp0,s,o) & ServPolicy(spa,s,o).
-    AlterPath(sp0,spa) <- ? sg0 sga s0 sa o0 oa : PathOrigin(sp0) & 
-                          PathOrigin(spa) &
-                          AlternativeGroup(sg0,sga) & 
-                          ServGroup(sg0,s0,o0) & ServGroup(sga,sa,oa) &
-                          ServPolicy(sp0,s0,o0) & ServPolicy(spa,sa,oa).
-    AlterPath(spa,sp0) <- AlterPath(sp0,spa).
-  }
-  
-  // Profile linked to a service policy.  Path between service policy (sp) and
-  // chain origin (sp0) is unique. Full profile depends the service policy path.
-  // Profiles are constructed from the following two rules: 
-  //  (1)   : Attributes that are stored are added to the profile
-  //  (2)   : Attributes that are forwarded by preceding service policies are
-  //          added to the profile too when there is no storage trust
-  {
-    ProfileSP(sp,sp0,a,e) <- Path(sp0,sp) & Store(sp,a,e).
-    ProfileSP(sp,sp0,a,e) <- ? sp1 fw1 : ~HasStorageTrust(sp) & Path(sp0,sp) &
-                             Path(sp0,sp1) &
-                             ServPolForward(sp1,fw1) & ForwardTo(fw1,sp) & 
-                             Forward(fw1,a,e).
+    DistFromTo(sp0,spIn,sp1) <- InfoFlowNext(sp0,spIn,sp1).    
+                                
+    DistFromTo(sp0,spIn,sp2) <- ? sp1 :
+                                ~HasDistributionTrust(sp1) &
+                                InfoFlowTo(sp0,spIn) & InfoFlowTo(sp0,sp1) &
+                                ~InfoFlowSeq(sp0,sp1,spIn) &
+                                InfoFlowNext(sp0,sp1,sp2) &
+                                DistFromTo(sp0,spIn,sp1).
   } 
   
-  // Linkable services associated with service policy path
-  {
-    IdSP(n,sp,sp0) <- Path(sp0,sp) & PseudoSet(n) &
-                      ~(? a : PseudoSet(n,a) & 
-                      ~(? e : ProfileSP(sp,sp0,a,e))).
-    IdSP(i,sp,sp0) <- Path(sp0,sp) & IdentSet(i) &
-                      ~(? a : IdentSet(i,a) & 
-                      ~(? e : ProfileSP(sp,sp0,a,e))).
+  // Determine the revealed attributes that are specified in the distribution
+  // section of the service policies
+  {                                   
+    RevealDistAttr(sp0,sp,a,e) <- ? spIn : DistFromTo(sp0,spIn,sp) & 
+                                    DistAttr(sp0,spIn,a,e).
   }
   
-  // Linkable profiles
+  
+  // Determine the attributes that are stored by each organization for each 
+  // info-flow
+  //  (1)   : attributes determined by access control polcies
+  //  (2)   : attributes determined by distribution policies
   {
-    IdProf(n,p) <- PseudoSet(n) & ~(? a : PseudoSet(n,a) & 
-                   ~(? e : ProfAttr(p,a,e))).
-    IdProf(i,p) <- IdentSet(i) & ~(? a : IdentSet(i,a) & 
-                   ~(? e : ProfAttr(p,a,e))).
+    InfoFlowStoreAttr(sp0,o,a,e) <- ? sp s : InfoFlowTo(sp0,sp) & 
+                                    StoreAttr(sp,a,e) & 
+                                    ServPolicySO(sp,s,o).
+                                
+    InfoFlowStoreAttr(sp0,o,a,e) <- ? sp s : ~HasStorageTrust(sp) & 
+                                    RevealDistAttr(sp0,sp,a,e) &
+                                    ServPolicySO(sp,s,o).
   }
   
-  // Deduction of impact of a service policy path on the profiles of
-  // organizations
-  //  (1)   : Organizations group data associated with a pseudonymous set
-  //          -optimalization: Path(sp0,sp) removed --> part of IdSP
-  //  (2)   : Collaborating organizations put their profiles togheter
-  //  (3)   : Recursive step : newly added attributes possibly compose new
-  //          pseudonyms
-  //  (4)   : Recursive step : newly added attributes possibly compose new
-  //          identities
-  //  (5)   : Sharing attributes between different service policies
+  // Determine the identifiers that are associated with the stored attributes
+  // for each info-flow
+  //  (1)   : pseudonyms
+  //  (2)   : identities
   {
-    ProfilePath(sp0,o,id,a,e) <- ? sp s : ProfileSP(sp,sp0,a,e) &
-                                 ServPolicy(sp,s,o) & IdSP(id,sp,sp0).
-    ProfilePath(sp0,o,id,a,e) <- ? col o1 : 
-                                 Collaboration(col,o) & Collaboration(col,o1) &
-                                 ProfilePath(sp0,o1,id,a,e).
-    ProfilePath(sp0,o,n,a,e) <- ? id : PseudoSet(n) & 
-                                ProfilePath(sp0,o,id,a,e) &
-                                ~(? a1 : PseudoSet(n,a1) & ~(? e1 : 
-                                ProfilePath(sp0,o,id,a1,e1))).
-    ProfilePath(sp0,o,i,a,e) <- ? id : IdentSet(i) & 
-                                ProfilePath(sp0,o,id,a,e) &
-                                ~(? a1 : IdentSet(i,a1) & ~(? e1 : 
-                                ProfilePath(sp0,o,id,a1,e1))). 
-    ProfilePath(sp0,o,id,a,e) <- ? cond s0 sp1 o1 : ConditionFulfilled(cond) &
-                                ServPolicy(sp0,s0,o) &
-                                ServPolSharing(sp1,sp0,cond) &                                
-                                ProfilePath(sp1,o1,id,a,e).                              
+    InfoFlowStoreId(sp0,o,n) <- ? a e : PseudoSet(n) & 
+                                InfoFlowStoreAttr(sp0,o,a,e) &
+                                ~(? a0 : PseudoSetAttr(n,a0) &
+                                ~(? e0 : InfoFlowStoreAttr(sp0,o,a0,e0))).
+    InfoFlowStoreId(sp0,o,i) <- ? a e : IdentSet(i) & 
+                                InfoFlowStoreAttr(sp0,o,a,e) &
+                                ~(? a0 : IdentSetAttr(i,a0) &
+                                ~(? e0 : InfoFlowStoreAttr(sp0,o,a0,e0))).
   }
   
-  // Deduction of impact of all paths to the profiles of organizations exclusive
-  // the impact of the considered path
-  //  (1)   : Organizations group data associated with a pseudonymous set
-  //          exclude all alternative path to the associated path  
-  //  (2)   : Collaborating organizations put their profiles togheter
-  //          (Path(sp1,sp) removed) --> part of IdSP
-  //  (3)   : Recursive step --> profiles of different service policies that 
-  //          have a shared identifier possibly compose new pseudonyms.
-  //  (4)   : Recursive step --> profiles of different service policies that 
-  //          have a shared identifier possibly compose new identities.
-  //  (5)   : Attributes in a profile that can be linked to a service policy
-  //          profile are always visible to the profile host  
-  //----------------------------------------------------------------------------
-  //  Technology dependent
-  //----------------------------------------------------------------------------
-  //  (1)   : Attributes in profiles are visible to profile host (must have co
-  //  (2)   : Attributes in profiles are visible to everyone
-  //  (3)   : Attributes in controlled access profiles are visible only to
-  //          authorized organizations  
-  {  
-    ProfilePathExcl(sp0,o,id,a,e) <- ? sp sp1 sp2 s s2: 
-                                     Path(sp0,sp2) & ServPolicy(sp2,s2,o) &
-                                     ServPolicy(sp,s,o) &
-                                     IdSP(id,sp,sp1) & ProfileSP(sp,sp1,a,e) &
-                                     ~AlterPath(sp1,sp0) & ~(sp0 = sp1) &
-                                     ~Dependency(sp1,sp0).
-    ProfilePathExcl(sp0,o,id,a,e) <- ? col o1 sp sp1 s : PathOrigin(sp0) &                                 
-                                     Collaboration(col,o) & 
-                                     Collaboration(col,o1) &
-                                     ServPolicy(sp,s,o1) &
-                                     IdSP(id,sp,sp1) & ProfileSP(sp,sp1,a,e) &
-                                     ~AlterPath(sp1,sp0) & ~(sp0 = sp1) &
-                                     ~Dependency(sp1,sp0).                                 
-    ProfilePathExcl(sp0,o,id,a,e) <- ? col o1 : 
-                                     Collaboration(col,o) & 
-                                     Collaboration(col,o1) &
-                                     ProfilePathExcl(sp0,o1,id,a,e).
-    ProfilePathExcl(sp0,o,n,a,e) <- ? id : PseudoSet(n) & 
-                                    ProfilePathExcl(sp0,o,id,a,e) & 
-                                    ~(? a1 : PseudoSet(n,a1) & ~(? e1 : 
-                                    ProfilePathExcl(sp0,o,id,a1,e1))).
-    ProfilePathExcl(sp0,o,i,a,e) <- ? id : IdentSet(i) &
-                                    ProfilePathExcl(sp0,o,id,a,e) & 
-                                    ~(? a1 : IdentSet(i,a1) & ~(? e1 : 
-                                    ProfilePathExcl(sp0,o,id,a1,e1))).    
-    ProfilePathExcl(sp0,o,id,a,e) <- ? cond sp1 sp2 o1 s0 s1 : 
-                                    ConditionFulfilled(cond) & 
-                                    ServPolicy(sp0,s0,o) &
-                                    ServPolicy(sp1,s1,o) &
-                                    ServPolSharing(sp2,sp1,cond) &
-                                    ProfilePathExcl(sp2,o1,id,a,e).                                
+  // Determine the attributes that are stored by each organization for each 
+  // info-flow that is part of the history of the refered service policy
+  {    
+    HistoryStoreAttr(sp0,spH,o,a,e) <- HistorySP(sp0,spH) & 
+                                       InfoFlowStoreAttr(spH,o,a,e).    
+  } 
+   
+  // Determine the profile of a service policy's history
+  //  (1)   : initial step : store attributes of the info-flows
+  //  (2)   : inductive step : find new created pseudonyms
+  //  (3)   : inductive step : find new created identities
+  {
+    ProfileHistory(sp0,o,id,a,e) <- ? spH : 
+                                    HistoryStoreAttr(sp0,spH,o,a,e) & 
+                                    InfoFlowStoreId(spH,o,id).                       
+                                    
+    ProfileHistory(sp0,o,n,a,e) <- ? id0 : PseudoSet(n) & 
+                                   ProfileHistory(sp0,o,id0,a,e) &
+                                   ~(? a0 : PseudoSetAttr(n,a0) &
+                                   ~(? e0 : ProfileHistory(sp0,o,id0,a0,e0))).
+                                   
+    ProfileHistory(sp0,o,i,a,e) <- ? id0 : IdentSet(i) &
+                                   ProfileHistory(sp0,o,id0,a,e) &
+                                   ~(? a0 : IdentSetAttr(i,a0) &
+                                   ~(? e0 : ProfileHistory(sp0,o,id0,a0,e0))).
+  }
 
-    //--------------------------------------------------------------------------
-    //  Technology dependent properties
-    //--------------------------------------------------------------------------
-    ProfilePathExcl(sp0,o,id,a,e) <- ? sp s p: Path(sp0,sp) & 
-                                     ServPolicy(sp,s,o) & 
-                                     ProfHost(p,o) & IdProf(id,p) & 
-                                     ProfAttr(p,a,e).
-    ProfilePathExcl(sp0,o,id,a,e) <- ? sp s p : ProfTech(p,Public) & 
-                                     Path(sp0,sp) & ServPolicy(sp,s,o) & 
-                                     IdProf(id,p) & ProfAttr(p,a,e).
-    ProfilePathExcl(sp0,o,id,a,e) <- ? sp s p : ProfTech(p,Filtered) & 
-                                     Path(sp0,sp) & ServPolicy(sp,s,o) &
-                                     ProfRestrictAccess(p,o) &
-                                     IdProf(id,p) & ProfAttr(p,a,e).
-  }     
-  
-  // Deduction of the attributes related with the selected service option 
-  // that are directly stored
+  // Determine the profile of info-flow of a service policy
   {
-    ServOptStored(sp0,o,a,e) <- ? id : ProfilePath(sp0,o,id,a,e).
+    ProfileInfoFlow(sp0,o,id,a,e) <- InfoFlowStoreAttr(sp0,o,a,e) &
+                                     InfoFlowStoreId(sp0,o,id).
   }
   
-  // Deduction of the impact of the selected service policy path on the
-  // exclusive set
-  //  (1)   : Attributes from the path profile
-  //  (2)   : All attributes that is pseudonymous under pseudonyms related to 
-  //          the selected service policy becomes linkable -> members of one set
-  //  (3)   : Recursive step -> newly added attributes possibly compose new
-  //          pseudonyms
+  // Determine the impact of a service.  Therefore profile of the info-flow
+  // of the corresponding service policy is applied to the history of that
+  // service policy.
+  //  (1)   : initial step : add the profile of the info-flow
+  //  (2)   : inductive step : merge profiles in the history if they share a
+  //                           common identifier
+  //  (3)   : inductive step : find new created pseudonyms
+  //  (4)   : inductive step : find new created identities
   {
-    ServOptProf(sp0,o,a,e) <- ? id : ProfilePath(sp0,o,id,a,e).
-    ServOptProf(sp0,o,a,e) <- ? id a0 e0 : ProfilePath(sp0,o,id,a0,e0) &
-                              ProfilePathExcl(sp0,o,id,a,e).
-    ServOptProf(sp0,o,a,e) <- ? n : PseudoSet(n) & 
-                              ProfilePathExcl(sp0,o,n,a,e) &
-                              ~(? a1 : PseudoSet(n,a1) & 
-                              ~(? e1 : ServOptProf(sp0,o,a1,e1))).
-    ServOptProf(sp0,o,a,e) <- ? i : IdentSet(i) & 
-                              ProfilePathExcl(sp0,o,i,a,e) &                               
-                              (~? a1 : IdentSet(i,a1) & 
-                              ~(? e1 : ServOptProf(sp0,o,a1,e1))).                       
-  }  
-  
-  // Deduction of pseudonyms that are linked with the selected service policy
-  //  (1)   : Pseudonym sets are subsets of the ServOptProf set
-  {
-    ServOptProfN(sp0,o,n) <- PseudoSet(n) & 
-                             ~(? a : PseudoSet(n,a) & 
-                             ~(? e : ServOptProf(sp0,o,a,e))).
+    ProfileService(sp0,o,id,a,e) <- ProfileInfoFlow(sp0,o,id,a,e).
+    
+    ProfileService(sp0,o,id,a,e) <- ? a0 e0 : 
+                                    ProfileService(sp0,o,id,a0,e0) & 
+                                    ProfileHistory(sp0,o,id,a,e).
+    
+    ProfileService(sp0,o,n,a,e) <- ? id0 : PseudoSet(n) &
+                                   ProfileService(sp0,o,id0,a,e) &
+                                   ~(? a0 : PseudoSetAttr(n,a0) &
+                                   ~(? e0 : ProfileService(sp0,o,id0,a0,e0))).
+                                   
+    ProfileService(sp0,o,i,a,e) <- ? id0 : IdentSet(i) &
+                                   ProfileService(sp0,o,id0,a,e) &
+                                   ~(? a0 : IdentSetAttr(i,a0) &
+                                   ~(? e0 : ProfileService(sp0,o,id0,a0,e0))).
   }
   
-  // Deduction of pseudonyms that are linked with the selected service policy
-  //  (1)   : Identity sets are subsets of the ServOptProf set
+  // Determine the post-merged profiles maintained by an organization for a
+  // selected service profile
+  //  (1)   : initial step : all the profiles for the selected service
+  //  (2)   : inductive step : all profiles of complementary service profiles
+  //  (3)   : inductive step : evaluate for newly created pseudonyms
+  //  (4)   : inductive step : evaluate for newly created identities
   {
-    ServOptProfI(sp0,o,i) <- IdentSet(i) &
-                             ~(? a : IdentSet(i,a) & 
-                             ~(? e : ServOptProf(sp0,o,a,e))).
+    MergedProfilesOrg(sp0,o,id,a,e) <- ProfileService(sp0,o,id,a,e).
+    
+    MergedProfilesOrg(sp0,o,id,a,e) <- ? spc a1 e1 : InfoFlowCompl(sp0,spc) &
+                                       ProfileService(spc,o,id,a,e) & 
+                                       MergedProfilesOrg(sp0,o,id,a1,e1).
+                                       
+    MergedProfilesOrg(sp0,o,n,a,e) <- ? id0 : PseudoSet(n) &
+                                MergedProfilesOrg(sp0,o,id0,a,e) &
+                                ~(? a0 : PseudoSetAttr(n,a0) &
+                                ~(? e0 : MergedProfilesOrg(sp0,o,id0,a0,e0))).
+                                   
+    MergedProfilesOrg(sp0,o,i,a,e) <- ? id0 : IdentSet(i) &
+                                MergedProfilesOrg(sp0,o,id0,a,e) &
+                                ~(? a0 : IdentSetAttr(i,a0) &
+                                ~(? e0 : MergedProfilesOrg(sp0,o,id0,a0,e0))).                                        
   }
   
-  {
-    UserPolViolationReveal(sp,d,o,a) <- ? e : ServOptProf(sp,o,a,e) & 
-                                     OrgDomain(d,o) &
-                                     UserPolRevealNotAllow(d,a).
-  }
-  
-  {
-    ServOptProfAnon(sp0,o) <- ! id : PathOrigin(sp0) & ~ServOptProfN(sp0,o,id) & 
-                              ~ServOptProfI(sp0,o,id).
-  }
-  
-  {
-    ServOptProfAnon(sp0) <- ! o : ServOptProfAnon(sp0,o).
-  }
-  
-  {
-    UserPolViolationRevealId(sp,d,o,n) <- ServOptProfN(sp,o,n) & 
-                                          OrgDomain(d,o) &
-                                          UserPolRevealNotAllowId(d,n).
-    UserPolViolationRevealId(sp,d,o,i) <- ServOptProfI(sp,o,i) & 
-                                          OrgDomain(d,o) &
-                                          UserPolRevealNotAllowId(d,i).
-  }
