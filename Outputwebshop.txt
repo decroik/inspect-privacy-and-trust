@@ -1,0 +1,308 @@
+// This is the IDP output for the modeled web shop.  It contains the user
+// profiles of the web shop and the postal service company in the case where 
+// the user has only storage trust in the postal service company and has 
+// distribution trust in the web shop. The format of the output is given by the
+// predicate
+//
+//    UserProfile(Organization, Identifer, Service, Attribute, Stakeholder)
+//
+// It relates an Attribute with a user profle of an Organization
+// that can be linked with an Identifer after the execution of a user invoked
+// Service. Each of the attributes is certified by a Stakeholder. For instance,
+// the government certifies the name of its citizens via their basic electronic
+// identity card.
+
+UserProfile[VocPrivAndTrust::Organization,VocPrivAndTrust::Identifier,
+VocPrivAndTrust::ServiceIdentifier,
+VocPrivAndTrust::Attribute,VocPrivAndTrust::Stakeholder] = 
+{ 
+     PS,Identity1,BasicPurchaseServ,Address,User
+     PS,Identity1,BasicPurchaseServ,EMail,User
+     PS,Identity1,BasicPurchaseServ,Name,User
+     PS,Identity1,BasicPurchaseServ,OrderNr,WS
+     PS,Identity1,BasicPurchaseServ,URL,PS
+     
+     PS,Identity1,BasicReductionPurchaseServ,Address,User
+     PS,Identity1,BasicReductionPurchaseServ,EMail,User
+     PS,Identity1,BasicReductionPurchaseServ,Name,User
+     PS,Identity1,BasicReductionPurchaseServ,OrderNr,WS
+     PS,Identity1,BasicReductionPurchaseServ,URL,PS
+     
+     PS,Identity1,PrivPurchaseServ,Address,User
+     PS,Identity1,PrivPurchaseServ,EMail,User
+     PS,Identity1,PrivPurchaseServ,Name,User
+     PS,Identity1,PrivPurchaseServ,OrderNr,WS
+     PS,Identity1,PrivPurchaseServ,URL,PS
+     
+     PS,Identity1,PrivReductionPurchaseServ,Address,User
+     PS,Identity1,PrivReductionPurchaseServ,EMail,User
+     PS,Identity1,PrivReductionPurchaseServ,Name,User
+     PS,Identity1,PrivReductionPurchaseServ,OrderNr,WS
+     PS,Identity1,PrivReductionPurchaseServ,URL,PS
+     
+     PS,Nym2,BasicPurchaseServ,Address,User
+     PS,Nym2,BasicPurchaseServ,EMail,User
+     PS,Nym2,BasicPurchaseServ,Name,User
+     PS,Nym2,BasicPurchaseServ,OrderNr,WS
+     PS,Nym2,BasicPurchaseServ,URL,PS
+     
+     PS,Nym2,BasicReductionPurchaseServ,Address,User
+     PS,Nym2,BasicReductionPurchaseServ,EMail,User
+     PS,Nym2,BasicReductionPurchaseServ,Name,User
+     PS,Nym2,BasicReductionPurchaseServ,OrderNr,WS
+     PS,Nym2,BasicReductionPurchaseServ,URL,PS
+     
+     PS,Nym2,PrivPurchaseServ,Address,User
+     PS,Nym2,PrivPurchaseServ,EMail,User
+     PS,Nym2,PrivPurchaseServ,Name,User
+     PS,Nym2,PrivPurchaseServ,OrderNr,WS
+     PS,Nym2,PrivPurchaseServ,URL,PS
+     
+     PS,Nym2,PrivReductionPurchaseServ,Address,User
+     PS,Nym2,PrivReductionPurchaseServ,EMail,User
+     PS,Nym2,PrivReductionPurchaseServ,Name,User
+     PS,Nym2,PrivReductionPurchaseServ,OrderNr,WS
+     PS,Nym2,PrivReductionPurchaseServ,URL,PS
+     
+     PS,Nym3,BasicPurchaseServ,Address,User
+     PS,Nym3,BasicPurchaseServ,EMail,User
+     PS,Nym3,BasicPurchaseServ,Name,User
+     PS,Nym3,BasicPurchaseServ,OrderNr,WS
+     PS,Nym3,BasicPurchaseServ,URL,PS
+     
+     PS,Nym3,BasicReductionPurchaseServ,Address,User
+     PS,Nym3,BasicReductionPurchaseServ,EMail,User
+     PS,Nym3,BasicReductionPurchaseServ,Name,User
+     PS,Nym3,BasicReductionPurchaseServ,OrderNr,WS
+     PS,Nym3,BasicReductionPurchaseServ,URL,PS
+     
+     PS,Nym3,PrivPurchaseServ,Address,User
+     PS,Nym3,PrivPurchaseServ,EMail,User
+     PS,Nym3,PrivPurchaseServ,Name,User
+     PS,Nym3,PrivPurchaseServ,OrderNr,WS
+     PS,Nym3,PrivPurchaseServ,URL,PS
+     
+     PS,Nym3,PrivReductionPurchaseServ,Address,User
+     PS,Nym3,PrivReductionPurchaseServ,EMail,User
+     PS,Nym3,PrivReductionPurchaseServ,Name,User
+     PS,Nym3,PrivReductionPurchaseServ,OrderNr,WS
+     PS,Nym3,PrivReductionPurchaseServ,URL,PS
+     
+     PS,Nym4,BasicPurchaseServ,Address,User
+     PS,Nym4,BasicPurchaseServ,EMail,User
+     PS,Nym4,BasicPurchaseServ,Name,User
+     PS,Nym4,BasicPurchaseServ,OrderNr,WS
+     PS,Nym4,BasicPurchaseServ,URL,PS
+     
+     PS,Nym4,BasicReductionPurchaseServ,Address,User
+     PS,Nym4,BasicReductionPurchaseServ,EMail,User
+     PS,Nym4,BasicReductionPurchaseServ,Name,User
+     PS,Nym4,BasicReductionPurchaseServ,OrderNr,WS
+     PS,Nym4,BasicReductionPurchaseServ,URL,PS
+     
+     PS,Nym4,PrivPurchaseServ,Address,User
+     PS,Nym4,PrivPurchaseServ,EMail,User
+     PS,Nym4,PrivPurchaseServ,Name,User
+     PS,Nym4,PrivPurchaseServ,OrderNr,WS
+     PS,Nym4,PrivPurchaseServ,URL,PS
+     
+     PS,Nym4,PrivReductionPurchaseServ,Address,User
+     PS,Nym4,PrivReductionPurchaseServ,EMail,User
+     PS,Nym4,PrivReductionPurchaseServ,Name,User
+     PS,Nym4,PrivReductionPurchaseServ,OrderNr,WS
+     PS,Nym4,PrivReductionPurchaseServ,URL,PS
+     
+     WS,Identity1,BasicPurchaseServ,Address,Government
+     WS,Identity1,BasicPurchaseServ,Address,User
+     WS,Identity1,BasicPurchaseServ,AgeLimit,Government
+     WS,Identity1,BasicPurchaseServ,DoB,Government
+     WS,Identity1,BasicPurchaseServ,EMail,User
+     WS,Identity1,BasicPurchaseServ,Name,Government
+     WS,Identity1,BasicPurchaseServ,Name,User
+     WS,Identity1,BasicPurchaseServ,OrderNr,WS
+     WS,Identity1,BasicPurchaseServ,SSN,Government
+     WS,Identity1,BasicPurchaseServ,URL,PS
+     
+     WS,Identity1,BasicReductionPurchaseServ,Address,Government
+     WS,Identity1,BasicReductionPurchaseServ,Address,University
+     WS,Identity1,BasicReductionPurchaseServ,Address,User
+     WS,Identity1,BasicReductionPurchaseServ,AgeLimit,Government
+     WS,Identity1,BasicReductionPurchaseServ,DoB,Government
+     WS,Identity1,BasicReductionPurchaseServ,EMail,User
+     WS,Identity1,BasicReductionPurchaseServ,Institute,University
+     WS,Identity1,BasicReductionPurchaseServ,Name,Government
+     WS,Identity1,BasicReductionPurchaseServ,Name,University
+     WS,Identity1,BasicReductionPurchaseServ,Name,User
+     WS,Identity1,BasicReductionPurchaseServ,OrderNr,WS
+     WS,Identity1,BasicReductionPurchaseServ,SSN,Government
+     WS,Identity1,BasicReductionPurchaseServ,URL,PS
+     
+     WS,Identity1,PrivPurchaseServ,Address,User
+     WS,Identity1,PrivPurchaseServ,AgeLimit,Government
+     WS,Identity1,PrivPurchaseServ,EMail,User
+     WS,Identity1,PrivPurchaseServ,Name,User
+     WS,Identity1,PrivPurchaseServ,OrderNr,WS
+     WS,Identity1,PrivPurchaseServ,URL,PS
+     
+     WS,Identity1,PrivReductionPurchaseServ,Address,University
+     WS,Identity1,PrivReductionPurchaseServ,Address,User
+     WS,Identity1,PrivReductionPurchaseServ,AgeLimit,Government
+     WS,Identity1,PrivReductionPurchaseServ,EMail,User
+     WS,Identity1,PrivReductionPurchaseServ,Institute,University
+     WS,Identity1,PrivReductionPurchaseServ,Name,University
+     WS,Identity1,PrivReductionPurchaseServ,Name,User
+     WS,Identity1,PrivReductionPurchaseServ,OrderNr,WS
+     WS,Identity1,PrivReductionPurchaseServ,URL,PS
+     
+     WS,Nym1,BasicPurchaseServ,Address,Government
+     WS,Nym1,BasicPurchaseServ,Address,User
+     WS,Nym1,BasicPurchaseServ,AgeLimit,Government
+     WS,Nym1,BasicPurchaseServ,DoB,Government
+     WS,Nym1,BasicPurchaseServ,EMail,User
+     WS,Nym1,BasicPurchaseServ,Name,Government
+     WS,Nym1,BasicPurchaseServ,Name,User
+     WS,Nym1,BasicPurchaseServ,OrderNr,WS
+     WS,Nym1,BasicPurchaseServ,SSN,Government
+     WS,Nym1,BasicPurchaseServ,URL,PS
+     
+     WS,Nym1,BasicReductionPurchaseServ,Address,Government
+     WS,Nym1,BasicReductionPurchaseServ,Address,University
+     WS,Nym1,BasicReductionPurchaseServ,Address,User
+     WS,Nym1,BasicReductionPurchaseServ,AgeLimit,Government
+     WS,Nym1,BasicReductionPurchaseServ,DoB,Government
+     WS,Nym1,BasicReductionPurchaseServ,EMail,User
+     WS,Nym1,BasicReductionPurchaseServ,Institute,University
+     WS,Nym1,BasicReductionPurchaseServ,Name,Government
+     WS,Nym1,BasicReductionPurchaseServ,Name,University
+     WS,Nym1,BasicReductionPurchaseServ,Name,User
+     WS,Nym1,BasicReductionPurchaseServ,OrderNr,WS
+     WS,Nym1,BasicReductionPurchaseServ,SSN,Government
+     WS,Nym1,BasicReductionPurchaseServ,URL,PS
+     
+     WS,Nym2,BasicPurchaseServ,Address,Government
+     WS,Nym2,BasicPurchaseServ,Address,User
+     WS,Nym2,BasicPurchaseServ,AgeLimit,Government
+     WS,Nym2,BasicPurchaseServ,DoB,Government
+     WS,Nym2,BasicPurchaseServ,EMail,User
+     WS,Nym2,BasicPurchaseServ,Name,Government
+     WS,Nym2,BasicPurchaseServ,Name,User
+     WS,Nym2,BasicPurchaseServ,OrderNr,WS
+     WS,Nym2,BasicPurchaseServ,SSN,Government
+     WS,Nym2,BasicPurchaseServ,URL,PS
+     
+     WS,Nym2,BasicReductionPurchaseServ,Address,Government
+     WS,Nym2,BasicReductionPurchaseServ,Address,University
+     WS,Nym2,BasicReductionPurchaseServ,Address,User
+     WS,Nym2,BasicReductionPurchaseServ,AgeLimit,Government
+     WS,Nym2,BasicReductionPurchaseServ,DoB,Government
+     WS,Nym2,BasicReductionPurchaseServ,EMail,User
+     WS,Nym2,BasicReductionPurchaseServ,Institute,University
+     WS,Nym2,BasicReductionPurchaseServ,Name,Government
+     WS,Nym2,BasicReductionPurchaseServ,Name,University
+     WS,Nym2,BasicReductionPurchaseServ,Name,User
+     WS,Nym2,BasicReductionPurchaseServ,OrderNr,WS
+     WS,Nym2,BasicReductionPurchaseServ,SSN,Government
+     WS,Nym2,BasicReductionPurchaseServ,URL,PS
+     
+     WS,Nym2,PrivPurchaseServ,Address,User
+     WS,Nym2,PrivPurchaseServ,AgeLimit,Government
+     WS,Nym2,PrivPurchaseServ,EMail,User
+     WS,Nym2,PrivPurchaseServ,Name,User
+     WS,Nym2,PrivPurchaseServ,OrderNr,WS
+     WS,Nym2,PrivPurchaseServ,URL,PS
+     
+     WS,Nym2,PrivReductionPurchaseServ,Address,University
+     WS,Nym2,PrivReductionPurchaseServ,Address,User
+     WS,Nym2,PrivReductionPurchaseServ,AgeLimit,Government
+     WS,Nym2,PrivReductionPurchaseServ,EMail,User
+     WS,Nym2,PrivReductionPurchaseServ,Institute,University
+     WS,Nym2,PrivReductionPurchaseServ,Name,University
+     WS,Nym2,PrivReductionPurchaseServ,Name,User
+     WS,Nym2,PrivReductionPurchaseServ,OrderNr,WS
+     WS,Nym2,PrivReductionPurchaseServ,URL,PS
+     
+     WS,Nym3,BasicPurchaseServ,Address,Government
+     WS,Nym3,BasicPurchaseServ,Address,User
+     WS,Nym3,BasicPurchaseServ,AgeLimit,Government
+     WS,Nym3,BasicPurchaseServ,DoB,Government
+     WS,Nym3,BasicPurchaseServ,EMail,User
+     WS,Nym3,BasicPurchaseServ,Name,Government
+     WS,Nym3,BasicPurchaseServ,Name,User
+     WS,Nym3,BasicPurchaseServ,OrderNr,WS
+     WS,Nym3,BasicPurchaseServ,SSN,Government
+     WS,Nym3,BasicPurchaseServ,URL,PS
+     
+     WS,Nym3,BasicReductionPurchaseServ,Address,Government
+     WS,Nym3,BasicReductionPurchaseServ,Address,University
+     WS,Nym3,BasicReductionPurchaseServ,Address,User
+     WS,Nym3,BasicReductionPurchaseServ,AgeLimit,Government
+     WS,Nym3,BasicReductionPurchaseServ,DoB,Government
+     WS,Nym3,BasicReductionPurchaseServ,EMail,User
+     WS,Nym3,BasicReductionPurchaseServ,Institute,University
+     WS,Nym3,BasicReductionPurchaseServ,Name,Government
+     WS,Nym3,BasicReductionPurchaseServ,Name,University
+     WS,Nym3,BasicReductionPurchaseServ,Name,User
+     WS,Nym3,BasicReductionPurchaseServ,OrderNr,WS
+     WS,Nym3,BasicReductionPurchaseServ,SSN,Government
+     WS,Nym3,BasicReductionPurchaseServ,URL,PS
+     
+     WS,Nym3,PrivPurchaseServ,Address,User
+     WS,Nym3,PrivPurchaseServ,AgeLimit,Government
+     WS,Nym3,PrivPurchaseServ,EMail,User
+     WS,Nym3,PrivPurchaseServ,Name,User
+     WS,Nym3,PrivPurchaseServ,OrderNr,WS
+     WS,Nym3,PrivPurchaseServ,URL,PS
+     
+     WS,Nym3,PrivReductionPurchaseServ,Address,University
+     WS,Nym3,PrivReductionPurchaseServ,Address,User
+     WS,Nym3,PrivReductionPurchaseServ,AgeLimit,Government
+     WS,Nym3,PrivReductionPurchaseServ,EMail,User
+     WS,Nym3,PrivReductionPurchaseServ,Institute,University
+     WS,Nym3,PrivReductionPurchaseServ,Name,University
+     WS,Nym3,PrivReductionPurchaseServ,Name,User
+     WS,Nym3,PrivReductionPurchaseServ,OrderNr,WS
+     WS,Nym3,PrivReductionPurchaseServ,URL,PS
+     
+     WS,Nym4,BasicPurchaseServ,Address,Government
+     WS,Nym4,BasicPurchaseServ,Address,User
+     WS,Nym4,BasicPurchaseServ,AgeLimit,Government
+     WS,Nym4,BasicPurchaseServ,DoB,Government
+     WS,Nym4,BasicPurchaseServ,EMail,User
+     WS,Nym4,BasicPurchaseServ,Name,Government
+     WS,Nym4,BasicPurchaseServ,Name,User
+     WS,Nym4,BasicPurchaseServ,OrderNr,WS
+     WS,Nym4,BasicPurchaseServ,SSN,Government
+     WS,Nym4,BasicPurchaseServ,URL,PS
+     
+     WS,Nym4,BasicReductionPurchaseServ,Address,Government
+     WS,Nym4,BasicReductionPurchaseServ,Address,University
+     WS,Nym4,BasicReductionPurchaseServ,Address,User
+     WS,Nym4,BasicReductionPurchaseServ,AgeLimit,Government
+     WS,Nym4,BasicReductionPurchaseServ,DoB,Government
+     WS,Nym4,BasicReductionPurchaseServ,EMail,User
+     WS,Nym4,BasicReductionPurchaseServ,Institute,University
+     WS,Nym4,BasicReductionPurchaseServ,Name,Government
+     WS,Nym4,BasicReductionPurchaseServ,Name,University
+     WS,Nym4,BasicReductionPurchaseServ,Name,User
+     WS,Nym4,BasicReductionPurchaseServ,OrderNr,WS
+     WS,Nym4,BasicReductionPurchaseServ,SSN,Government
+     WS,Nym4,BasicReductionPurchaseServ,URL,PS
+     
+     WS,Nym4,PrivPurchaseServ,Address,User
+     WS,Nym4,PrivPurchaseServ,AgeLimit,Government
+     WS,Nym4,PrivPurchaseServ,EMail,User
+     WS,Nym4,PrivPurchaseServ,Name,User
+     WS,Nym4,PrivPurchaseServ,OrderNr,WS
+     WS,Nym4,PrivPurchaseServ,URL,PS
+     
+     WS,Nym4,PrivReductionPurchaseServ,Address,University
+     WS,Nym4,PrivReductionPurchaseServ,Address,User
+     WS,Nym4,PrivReductionPurchaseServ,AgeLimit,Government
+     WS,Nym4,PrivReductionPurchaseServ,EMail,User
+     WS,Nym4,PrivReductionPurchaseServ,Institute,University
+     WS,Nym4,PrivReductionPurchaseServ,Name,University
+     WS,Nym4,PrivReductionPurchaseServ,Name,User
+     WS,Nym4,PrivReductionPurchaseServ,OrderNr,WS
+     WS,Nym4,PrivReductionPurchaseServ,URL,PS
+}
+ 
