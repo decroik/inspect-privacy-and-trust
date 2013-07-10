@@ -1,0 +1,23 @@
+The scenario consists of two service providers, namely a web shop (WS) and a 
+postal service company (PS). A consumer can purchase products at an online 
+website managed by WS. As the shop wants to exclude minors, a consumer needs 
+to prove to be older than 18. The web shop supports two credential technologies 
+to fulfil that prerequisite. Either the consumer uses a basic electronic 
+identity card or a more privacy-friendly one. We assume that the former consists
+of an X.509 certificate which embeds the customer's name, address, date of 
+birth (DoB), and social security number (SSN), and the latter can be an 
+anonymous credential which contains the same attributes. Anonymous credentials 
+allow to selectively disclose attributes. More specifically, a user can prove to 
+be older than 18 without revealing his date of birth. Students can purchase 
+goods at a reduced prize if they show their electronic student card. It consists
+of an X.509 certificate with the student's name, address, and institute as
+attributes. Consumers also need to disclose their email address when they want 
+to buy a product. When a purchase transaction is completed, WS sends transaction 
+details together with personalized recommendations to the consumer's email 
+address. Also, WS shares the order number (OrderNr) and email address (Email) 
+with PS, and the user is redirected to PS. The consumer additionally needs to 
+fill in his name and address in the registration form provided by PS. PS 
+collects the data and sends a unique hyperlink to the user's mailbox which can 
+be used to track the delivery status. After delivery, PS informs WS that the 
+delivery corresponding to OrderNr was successful. Note that, for simplicity, 
+we make abstraction of the data exchanged at communication level.
