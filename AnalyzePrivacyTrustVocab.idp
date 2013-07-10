@@ -1,0 +1,184 @@
+/**
+ * Title:  Infer privacy in advanced electronic services.
+ * 
+ * Author: koen.dec...@gmail.com
+ */
+ 
+ /**
+ *      Vocabulary
+ */ 
+ 
+ /**
+  * Notes:
+  *   (1) : This is the realization of the inference presented in ------
+  *   (2) : In the paper only attributes are part of a profile.  However, more
+  *         precise conclusions are possible when assigned a stakeholder to
+  *         each attribute that asserts this attribute.  For instance, a user 
+  *         enters his name in an input text field on a site.  In this case, 
+  *         the user asserts the name.  Another example is a user that reveals 
+  *         the name on his identity card.  The government asserts the user's 
+  *         name because this card is issued by it.  This realization extends
+  *         profiles with these stakeholders.  It allows to estimate whether
+  *         attributes that are part of a user profile are trustworthy or not.
+  *         For instance, ones name asserted by the government is more 
+  *         trustworthy than the user's name asserted by the user himself.
+  */ 
+
+vocabulary VocPrivAndTrust {
+  
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //  Vocabulary : Input model - System Model
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      
+  type AttrSrc  
+  
+  type Stakeholder isa AttrSrc         // Stakeholders in the organization
+  type User isa Stakeholder            // User in the system : set U
+  type Organization isa Stakeholder    // Organizations in the system : set O
+  
+  type Attribute                       // Attributes in the system : set A
+  type Property isa Attribute          // Properties
+  
+  type AuthToken isa AttrSrc           // Authentication tokens that are 
+                                       // used in the modeled system   
+  
+  //----------------------------------------------------------------------------
+  // Services & Service Policies
+  //----------------------------------------------------------------------------  
+  type ServiceType                          // Services in the system : set S
+  type ServiceIdentifier isa AttrSrc
+    
+  // A service that is represented by a service instance is characterized 
+  // by the service type and its hosting organization
+  Service(ServiceIdentifier, ServiceType, Organization)
+  
+  // Service policies contain four sections
+  type AccessPolicy
+  type StoragePolicy
+  type DistributionPolicy
+  type OutputPolicy
+  
+  // This group of predicates specifies the service policy
+  OwnAuthToken(AccessPolicy,AuthToken)
+  RevealAttr(AccessPolicy, AttrSrc, Attribute, Stakeholder)
+  ProveProperty(AccessPolicy, Property, AttrSrc, Attribute, Stakeholder)
+  GenerateAttr(AccessPolicy, Attribute)
+  StoreAttr(StoragePolicy, Attribute, Stakeholder)
+  DistrAttrTo(DistributionPolicy, ServiceIdentifier, Attribute, Stakeholder)
+  OutputAttr(OutputPolicy, Attribute)  
+  
+  // Additional Output Policy Rules that are not implemented
+  //OutputCred(OutputPolicy, Credential)
+  //sOutputProf(OutputPolicy, Profile)
+  
+  // A service policy is assigned to each service instance.  Each service 
+  // policy is composed of an access policy, storage policy, distribution
+  // policy, and an output policy
+  ServicePolicies(ServiceIdentifier, AccessPolicy, StoragePolicy, DistributionPolicy, OutputPolicy)
+  
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //  Vocabulary : Input model - User Model
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  
+  
+  //  Trust perception of the user = two trust relations
+  StorageTrust(Organization)              // Set R_S
+  DistributionTrust(Organization)         // Set R_D  
+    
+  // User's initial state
+  
+  // ** 1) Claim-based authentication technologies
+  type ClaimBasedTech
+  X509Tech : ClaimBasedTech
+  IdemixTech : ClaimBasedTech  
+  
+  type Credential isa AuthToken           // Credential references
+  
+  CredAttr(Credential, Attribute)         // Credential's attributes  
+  CredTech(Credential, ClaimBasedTech)    // Credential technology
+  CredIssuer(Credential, Organization)    // Organization that issues credential 
+    
+  // ** 2) Network-based technologies
+  //type NetworkBasedTech
+  //Public : NetworkBasedTech
+  //RestrictedAccess : NetworkBasedTech
+  //Private : NetworkBasedTech
+    
+  //type Profile isa AuthToken                   // Profile references
+  
+  //ProfAttr(Profile, Attribute, Stakeholder)  // (attr,stake) in profile
+  //ProfTech(Profile, NetworkBasedTech)        // Profile technology
+  //ProfHost(Profile, Organization)            // Profile host
+  //ProfAccess(Profile, Organization)          // Access Profile
+  //----------------------------------------------------------------------------  
+  
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //  Vocabulary : Input model - Identifiabiltiy Model
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  
+  type Identifier                         // Identifier set
+  type Identity isa Identifier            // Identity set : set I
+  type Pseudonym isa Identifier           // Pseudonymity set : set N
+    
+  IdentifierSetAttr(Identifier, Attribute)  // Attr member of the Identity set
+  
+  
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //  Vocabulary : Internal symbols
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  
+  // Storage trust in service instance that is deduced from the     
+  StorageTrustServInstance(ServiceIdentifier)
+  DistributionTrustServInstance(ServiceIdentifier)
+  
+  // Service instance invocations by users 
+  ServiceInvokedByUser(ServiceIdentifier)
+  
+  // Service instance (arg 1) directly invoked by service instance (arg 2)
+  Successor(ServiceIdentifier, ServiceIdentifier)
+  
+  // Service instance (arg1) invoked by service instance (arg2)
+  ServiceInvokedBy(ServiceIdentifier, ServiceIdentifier)  
+  
+  // Attributes that are generated by a service instance are revealed to it.
+  GeneratedByService(ServiceIdentifier, Attribute, Stakeholder)
+  
+  // Attributes that are directly revealed when invoking a service instance
+  RevealedToService(ServiceIdentifier, Attribute, Stakeholder)
+  
+  // Attributes that are forwarded by a service instance (arg1) to a service
+  // instance (arg 2) that it directly invokes 
+  ForwardedByServiceToSucc(ServiceIdentifier, ServiceIdentifier, Attribute, Stakeholder)
+  
+  // Attributes that are specified in the storage policy  
+  ServiceStoredPolicyAttr(ServiceIdentifier, Attribute, Stakeholder)
+  
+  // Attributes that are stored when revealed when invoking a service instance
+  ServiceStoredRevealAttr(ServiceIdentifier, Attribute, Stakeholder)
+  
+  // A path between two services that contains no services that are 
+  // distribution trusted.
+  UntrustedPath(ServiceIdentifier, ServiceIdentifier)
+  
+  // Attributes that are distributes by preceding service instances
+  ServiceStoredForwardAttr(ServiceIdentifier, ServiceIdentifier, Attribute, Stakeholder)
+                             
+  // The sub-profiles that are built for a service instance (arg 1) invoked
+  // by a user invokable service (arg 2).                              
+  SubProfile(ServiceIdentifier, ServiceIdentifier, Attribute, Stakeholder)
+  
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // Vocabulary : Output symbols
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  
+  // The user profiles to construct for a user invokable service instance
+  UserProfile(Organization, Identifier, ServiceIdentifier, Attribute, Stakeholder)
+}

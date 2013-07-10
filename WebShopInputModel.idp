@@ -1,0 +1,268 @@
+/**
+ * Title:  Infer privacy in advanced electronic services.
+ * 
+ * Author: koen.dec...@gmail.com
+ */
+ 
+ /**
+ *      Input model of the web shop
+ */ 
+ 
+ /**
+  * Notes:
+  *   (1) : This is the realization of the inference presented in ------
+  *   (2) : In the paper only attributes are part of a profile.  However, more
+  *         precise conclusions are possible when assigned a stakeholder to
+  *         each attribute that asserts this attribute.  For instance, a user 
+  *         enters his name in an input text field on a site.  In this case, 
+  *         the user asserts the name.  Another example is a user that reveals 
+  *         the name on his identity card.  The government asserts the user's 
+  *         name because this card is issued by it.  This realization extends
+  *         profiles with these stakeholders.  It allows to estimate whether
+  *         attributes that are part of a user profile are trustworthy or not.
+  *         For instance, ones name asserted by the government is more 
+  *         trustworthy than the user's name asserted by the user himself.
+  */ 
+  
+structure StructInputPrivAndTrust : VocPrivAndTrust {
+  
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // System model
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+  AttrSrc = { 
+    User;
+    Government; University; WS; PS;
+    BasicIDCard; PrivIDCard; StudentCard;
+  }
+  
+  Stakeholder = {
+    User;
+    Government; University; WS; PS;
+  }
+  
+  User = {
+    User;
+  }
+  
+  Organization = {
+    Government; University; WS; PS;
+  }
+  
+  Attribute = { 
+    Name; Address; DoB; SSN; Institute; OrderNr; URL; EMail;
+    AgeLimit;
+  }
+  
+  Property = {
+    AgeLimit;
+  }
+  
+  // Services & Service Policies
+  ServiceType = { Purchase; Delivered; DeliveryRequest; Delivery; }
+  
+  ServiceIdentifier = { 
+    BasicPurchaseServ; PrivPurchaseServ; 
+    BasicReductionPurchaseServ; PrivReductionPurchaseServ; 
+    DeliveredServ;
+    DeliveryRequestServ; DeliveryServ;    
+  }
+  
+  Service = {
+    BasicPurchaseServ,Purchase,WS; 
+    PrivPurchaseServ,Purchase,WS;
+    BasicReductionPurchaseServ,Purchase,WS; 
+    PrivReductionPurchaseServ,Purchase,WS;
+    DeliveredServ,Delivered,WS;
+    DeliveryRequestServ,DeliveryRequest,PS;
+    DeliveryServ,Delivery,PS;
+  }
+  
+  AccessPolicy = { 
+    BasicPurchaseServAP; PrivPurchaseServAP;
+    BasicReductionPurchaseServAP; PrivReductionPurchaseServAP;
+    DeliveredServAP; DeliveryRequestServAP; DeliveryServAP;  
+  }
+  
+  StoragePolicy = { 
+    PurchaseServSP; DeliveredServSP; 
+    DeliveryRequestServSP; DeliveryServSP;
+  }
+  
+  DistributionPolicy = { 
+    PurchaseServDP; DeliveredServDP; 
+    DeliveryRequestServDP; DeliveryServDP;
+  }
+  
+  OutputPolicy = { 
+    PurchaseServOP; DeliveredServOP;
+    DeliveryRequestServOP; DeliveryServOP;
+  }
+  
+  OwnAuthToken = {    
+    BasicReductionPurchaseServAP,StudentCard;
+    PrivReductionPurchaseServAP,StudentCard;
+  }
+  
+  RevealAttr = {
+     BasicPurchaseServAP,User,EMail,User;
+     //BasicPurchaseServAP,BasicIDCard,DoB,Government;
+     
+     PrivPurchaseServAP,User,EMail,User;
+     //PrivPurchaseServAP,PrivIDCard,DoB,Government;
+     
+     BasicReductionPurchaseServAP,User,EMail,User;
+     //BasicReductionPurchaseServAP,BasicIDCard,DoB,Government;     
+     
+     PrivReductionPurchaseServAP,User,EMail,User;
+     //PrivReductionPurchaseServAP,PrivIDCard,DoB,Government;     
+     
+     DeliveredServAP,PS,OrderNr,WS;
+     
+     DeliveryRequestServAP,WS,OrderNr,WS;
+     DeliveryRequestServAP,WS,EMail,User;
+     DeliveryRequestServAP,User,Name,User;
+     DeliveryRequestServAP,User,Address,User;
+     
+     DeliveryServAP,PS,OrderNr,WS;
+     DeliveryServAP,PS,Name,User;
+     DeliveryServAP,PS,Address,User;
+  }
+  
+  ProveProperty = {
+    BasicPurchaseServAP,AgeLimit,BasicIDCard,DoB,Government;    
+    PrivPurchaseServAP,AgeLimit,PrivIDCard,DoB,Government;  
+    BasicReductionPurchaseServAP,AgeLimit,BasicIDCard,DoB,Government;
+    PrivReductionPurchaseServAP,AgeLimit,PrivIDCard,DoB,Government;
+  }
+  
+  GenerateAttr = {
+    BasicPurchaseServAP,OrderNr;
+    PrivPurchaseServAP,OrderNr;
+    BasicReductionPurchaseServAP,OrderNr;
+    PrivReductionPurchaseServAP,OrderNr;
+    DeliveryRequestServAP,URL;
+  }
+  
+  StoreAttr = {
+    PurchaseServSP,EMail,User;
+    PurchaseServSP,OrderNr,WS;
+    
+    DeliveredServSP,OrderNr,WS;
+     
+    DeliveryRequestServSP,OrderNr,WS;
+    DeliveryRequestServSP,EMail,User;
+    DeliveryRequestServSP,Name,User;
+    DeliveryRequestServSP,Address,User;
+    DeliveryRequestServSP,URL,PS;
+    
+    // DeliveryId - no attributes are stored
+  }
+  
+  DistrAttrTo = {
+    PurchaseServDP,DeliveryRequestServ,OrderNr,WS;
+    PurchaseServDP,DeliveryRequestServ,EMail,User;
+    
+    // DeliveredIdDP - no attributes are forwarded
+     
+    DeliveryRequestServDP,DeliveryServ,OrderNr,WS;
+    DeliveryRequestServDP,DeliveryServ,Name,User;
+    DeliveryRequestServDP,DeliveryServ,Address,User;
+    
+    DeliveryServDP,DeliveredServ,OrderNr,WS;
+  }
+  
+  OutputAttr = {
+    // ServPurchaseOP - no attributes output
+    
+    // DeliveredIdOP - no attributes output
+    
+    DeliveryRequestServOP,URL;
+    
+    // DeliveryIdOP - no attributes output
+  }
+   
+  ServicePolicies = {
+    BasicPurchaseServ,BasicPurchaseServAP,PurchaseServSP,
+    PurchaseServDP,PurchaseServOP;
+    
+    PrivPurchaseServ,PrivPurchaseServAP,PurchaseServSP,
+    PurchaseServDP,PurchaseServOP;
+    
+    BasicReductionPurchaseServ,BasicReductionPurchaseServAP,PurchaseServSP,
+    PurchaseServDP,PurchaseServOP;
+    
+    PrivReductionPurchaseServ,PrivReductionPurchaseServAP,
+    PurchaseServSP,PurchaseServDP,PurchaseServOP;
+    
+    DeliveredServ,DeliveredServAP,DeliveredServSP,DeliveredServDP,
+    DeliveredServOP;
+    
+    DeliveryRequestServ,DeliveryRequestServAP,DeliveryRequestServSP,
+    DeliveryRequestServDP,DeliveryRequestServOP;
+    
+    DeliveryServ,DeliveryServAP,DeliveryServSP,DeliveryServDP,
+    DeliveryRequestServOP;   
+  }
+  
+  
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // User model
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  
+  // Trust perception by the user
+  StorageTrust = { PS; }
+  
+  DistributionTrust = { WS; }
+   
+  // Initial state of the user
+  ClaimBasedTech = { X509; Idemix; }
+  X509Tech = X509
+  IdemixTech = Idemix
+  Credential = { BasicIDCard; PrivIDCard; StudentCard; }
+  
+  CredAttr = {
+    BasicIDCard,Name; BasicIDCard,Address; BasicIDCard,DoB; BasicIDCard,SSN;
+    PrivIDCard,Name; PrivIDCard,Address; PrivIDCard,DoB; 
+    PrivIDCard,SSN;
+    StudentCard,Name; StudentCard,Address; StudentCard,Institute;
+  }
+  
+  CredTech = {
+    BasicIDCard,X509; PrivIDCard,Idemix; StudentCard,X509;
+  }
+  
+  CredIssuer = {
+    BasicIDCard,Government; PrivIDCard,Government; StudentCard,University;
+  }
+  
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // Identifiability model
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Identifier = { Identity1; Nym1; Nym2; Nym3; Nym4;}
+  
+  Identity = { Identity1; }
+  
+  Pseudonym = { Nym1; Nym2; Nym3; Nym4; }
+  
+  IdentifierSetAttr = {
+    Identity1,Name; Identity1,Address;
+    Nym1,SSN; Nym2,OrderNr; Nym3,URL; Nym4,EMail;  
+  }
+}
+ 
+//query Query1 : VocPrivAndTrust {
+//    { o id si a e : UserProfile(o,id,si,a,e) }
+//}
+
+procedure main() {
+  stdoptions.nbmodels = 1  
+  models = modelexpand(TheoryBasicInference,StructInputPrivAndTrust)  
+  //models = query(Query1,StructInputPrivAndTrust)
+  printmodels(models)
+}
