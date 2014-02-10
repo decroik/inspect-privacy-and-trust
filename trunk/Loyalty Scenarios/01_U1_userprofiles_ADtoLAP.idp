@@ -1,0 +1,355 @@
+vocabulary VocPrivAndTrust {
+  type Stakeholder
+  type User isa Stakeholder
+  type Organization isa Stakeholder
+  type Identifier 
+  type Pseudonym isa Identifier
+  type Identity isa Identifier
+  type ServiceIdentifier
+  type ServiceType
+  type Attribute
+  
+  IdentifierSetAttr(Identifier,Attribute)
+  
+  UserProfile(Organization,Identifier,ServiceIdentifier,Attribute,Stakeholder)
+  UserProfileQ(Organization,Identifier,ServiceIdentifier,Attribute,Stakeholder)
+  ServiceInvokedByUser(ServiceIdentifier)
+    
+  type ProfileAccessType  
+  RestrictedAccess : ProfileAccessType  
+  PublicAccess : ProfileAccessType  
+     
+  type Profile
+  
+  ProfAttr(Profile, Attribute, Stakeholder)  // (attr,stake) in profile
+  ProfAccessType(Profile, ProfileAccessType) // Profile technology
+  ProfOwner(Profile, Organization)           // Profile host
+  ProfAccess(Profile, Organization)          // Access Profile
+  
+  // Helper predicate, identifiers of a profile
+  ProfIdentifier(Profile,Identifier)
+  
+  StorageTrust(Organization)
+  DistributionTrust(Organization)
+  
+  RevealedToService(ServiceIdentifier,Attribute,Stakeholder)
+  Service(ServiceIdentifier,ServiceType,Organization)
+  
+  // Queries type 1 - linkabilities
+  AnonService(ServiceIdentifier,Organization)
+  PseudoService(ServiceIdentifier,Organization)
+  IdentService(ServiceIdentifier,Organization)  
+    
+  // Queries type 2 - find attributes / detect violations
+  SearchSet(Attribute)
+  UserProfileMatch(Organization,Identifier,ServiceIdentifier)
+  
+  ViolationSet(Organization,Attribute)
+  UserProfileViolation(Organization,Identifier,ServiceIdentifier,Attribute)
+      
+  // Queries type 3 - collaborations  
+  IsAnonService(ServiceIdentifier,Organization)  
+  IsPseudoService(ServiceIdentifier,Organization)
+  IsIdentService(ServiceIdentifier,Organization)
+  NoAnonService(ServiceIdentifier,Organization)
+  NoPseudoService(ServiceIdentifier,Organization)
+  NoIdentService(ServiceIdentifier,Organization)
+  
+  ShareDataTo(Organization,Organization)
+  IsShareDataTo(Organization, Organization)
+  NoShareDataTo(Organization, Organization)
+  IsShareDataSource(Organization)
+  NoShareDataSource(Organization)  
+  
+  // Queries type 4 - trust relationships
+  TrustRelationShipsOf(Organization)
+  Trusts(Organization,Stakeholder)
+  TrustedBy(Organization,Organization)
+}
+
+theory TheoryBasicInference : VocPrivAndTrust {
+  //----------------------------------------------------------------------------    
+  // Query for services that are anonymous / pseudonymous / identifiable
+  
+  // This concerns only services invoked by a user.
+  ! si o : AnonService(si,o) | PseudoService(si,o) | IdentService(si,o) <=> ServiceInvokedByUser(si). 
+      
+  // (1) Constraint rule: an identifiable service
+  // (2) Constraint rule: a pseudonymous service  
+  ! si o : ? id a e : UserProfileQ(o,id,si,a,e) & Identity(id) <=> IdentService(si,o) & ServiceInvokedByUser(si).
+  ! si o : ? id a e : UserProfileQ(o,id,si,a,e) & Pseudonym(id) <= PseudoService(si,o) & ServiceInvokedByUser(si).
+  
+  // (1) Constraint rule: no pseudonymous service
+  // (2) Constraint rule: no anonymous service
+  ! o id si a e : UserProfileQ(o,id,si,a,e) & Identity(id) => ~PseudoService(si,o).
+  ! o id si a e : UserProfileQ(o,id,si,a,e) & Identifier(id) => ~AnonService(si,o).  
+  
+  // Query type 2: Find user profiles that contain a set of attributes
+  ! o id si : UserProfileMatch(o,id,si) <=> ! a : ? e : ~SearchSet(a) | UserProfileQ(o,id,si,a,e).  
+  ! o id si a : UserProfileViolation(o,id,si,a) <=> ? e : ViolationSet(o,a) & UserProfileQ(o,id,si,a,e).
+  
+  //Helper predicate, find identifiers of profiles
+  {
+    ! p id : ProfIdentifier(p,id) <- ~(? a : IdentifierSetAttr(id,a) & 
+                                          ~(? e : ProfAttr(p,a,e))). 
+  }
+  
+  // Query type 3: Collaborative aspects requires, see rule 2 in definition.
+  {
+    ! o id si a e : UserProfileQ(o,id,si,a,e) <- UserProfile(o,id,si,a,e).
+    ! o id si a e : UserProfileQ(o,id,si,a,e) <- ? o_x : UserProfileQ(o_x,id,si,a,e) & ShareDataTo(o_x,o).
+    ! o id si a e : UserProfileQ(o,id,si,a,e) <-  ? id_x :                           
+                               UserProfileQ(o,id_x,si,a,e) &
+                               ~(? a_x : IdentifierSetAttr(id,a_x) & 
+                                        ~(? e_x : UserProfileQ(o,id_x,si,a_x,e_x))).
+                                        
+    ! o id si a e : UserProfileQ(o,id,si,a,e) <- ? p a_x e_x :
+                              StorageTrust(o) &
+                              UserProfile(o,id,si,a_x,e_x) & 
+                              ProfIdentifier(p,id) &
+                              ProfOwner(p,o) & 
+                              ProfAccessType(p,PublicAccess) &                              
+                              ProfAttr(p,a,e).
+                              
+    ! o id si a e : UserProfileQ(o,id,si,a,e) <- ? p a_x e_x :
+                              StorageTrust(o) &
+                              UserProfileQ(o,id,si,a_x,e_x) &
+                              ProfIdentifier(p,id) &
+                              ProfOwner(p,o) &
+                              ProfAccessType(p,RestrictedAccess) & 
+                              ProfAccess(p,o) &                 
+                              ProfAttr(p,a,e).
+                              
+    ! o id si a e : UserProfileQ(o,id,si,a,e) <- ? p a_x e_x : 
+                              ~StorageTrust(o) & 
+                              UserProfileQ(o,id,si,a_x,e_x) & 
+                              ProfIdentifier(p,id) & 
+                              ProfAccessType(p,PublicAccess) & 
+                              ProfAttr(p,a,e).
+                              
+    ! o id si a e : UserProfileQ(o,id,si,a,e) <- ? p a_x e_x : 
+                              ~StorageTrust(o) & 
+                              UserProfileQ(o,id,si,a_x,e_x) & 
+                              ProfIdentifier(p,id) & 
+                              ProfAccessType(p,RestrictedAccess) & 
+                              ProfAccess(p,o) &
+                              ProfAttr(p,a,e).
+  }
+  
+  // Query requirements that constraint the model
+  // (1)  : Given the identifiable services
+  // (2)  : Given the pseudonymous services
+  // (3)  : Given the anonymous services
+  // (4)  : Given that a service is not allowed to be identifiable
+  // (5)  : Given that a service is not allowed to be pseudonymous
+  // (6)  : Given that a service is not allowed to be anonymous
+  ! si o : IsIdentService(si,o) => IdentService(si,o).
+  ! si o : IsPseudoService(si,o) => PseudoService(si,o).
+  ! si o : IsAnonService(si,o) => AnonService(si,o).  
+  ! si o : NoIdentService(si,o) => ~IdentService(si,o).
+  ! si o : NoPseudoService(si,o) => ~PseudoService(si,o).
+  ! si o : NoAnonService(si,o) => ~AnonService(si,o).
+    
+  // Share data requirements
+  // (1)  : Given a collaboration
+  // (2)  : Given a collaboration that not exists
+  // (3)  : Given an organization as a data source
+  // (4)  : Given an organization that is not a data source  
+  ! src to : IsShareDataTo(src,to) => ShareDataTo(src,to).
+  ! src to : NoShareDataTo(src,to) => ~ShareDataTo(src,to).    
+  ! src : IsShareDataSource(src) => ? to : ShareDataTo(src,to).
+  ! src : NoShareDataSource(src) => ! to : ~ShareDataTo(src,to).
+  
+  // Query type 4 : Trust related queries
+  // (1)  : the organizations that are trusted by the organizations under query
+  // (2)  : the organizations that trust the organizations under query
+  ! o_q e : Trusts(o_q,e) <=> ? si s a : TrustRelationShipsOf(o_q) & RevealedToService(si,a,e) & Service(si,s,o_q) & ~(o_q = e).
+  ! o o_q : TrustedBy(o_q,o) <=> ? si s a : TrustRelationShipsOf(o_q) & RevealedToService(si,a,o_q) & Service(si,s,o) & ~(o_q = o).  
+}
+
+structure StructInputPrivAndTrust : VocPrivAndTrust {
+
+Stakeholder = {
+  User;
+  GroceryStore;
+  LoyaltyProgProvider;
+  LoyaltyAppProvider;    
+  Advertiser;
+  MobilePlatform;  
+  MobileOperator;
+}
+
+User = {
+  User;
+}
+
+Organization = {    
+  GroceryStore;
+  LoyaltyProgProvider;
+  LoyaltyAppProvider;    
+  Advertiser;
+  MobilePlatform;  
+  MobileOperator;
+}
+
+Identifier = { 
+  Identity1;
+  Nym1; Nym2; Nym3;
+  NymSessGroceryStore;
+}
+
+IdentifierSetAttr = {
+  Identity1,Name; Identity1,Address;
+  Nym1,PhoneNumber; Nym2,EMail; Nym3,QRCode;  
+  NymSessGroceryStore,SessGroceryStore;
+}
+  
+Identity = { 
+  Identity1;
+}
+  
+Pseudonym = { 
+  Nym1; Nym2; Nym3;
+  NymSessGroceryStore;
+}
+  
+ServiceIdentifier = {
+  Checkout;
+  RequestLoyaltyInfo; ShowLoyaltyInfo;
+  CollectLoyaltyPoints;
+  PrintTicket;
+  CollectDataFromLPP;    
+}
+
+ServiceType = { 
+  CheckoutType; CollectDataType; CollectLoyaltyPointsType; 
+  PrintTicketType; RequestLoyaltyInfoType; ShowLoyaltyInfoType;
+}
+
+IsAnonService = {
+    
+}
+
+IsPseudoService = {
+  
+}
+
+IsIdentService = {
+
+}
+
+IsShareDataSource = {  }
+IsShareDataTo = {  }
+NoAnonService = {  }
+NoIdentService = {  }
+NoPseudoService = {  }
+NoShareDataSource = {  }
+NoShareDataTo = {  }
+  
+Attribute = {
+    // From user
+    Name; Address; EMail; PhoneNumber;
+    PersonalProp;                     //DoB; Gender; FamilySituation; Language;    
+    
+    // From Mobile Device or Mobile Operator
+    Location; 
+    
+    // From loyalty program provider
+    QRCode; PointsToEarn; PointsEarned; PointBalance;
+    
+    // From the grocery store
+    Bill; Products; 
+    
+    // Session specific
+    SessGroceryStore;
+}   
+
+ServiceInvokedByUser = {
+  Checkout;
+}
+
+Service = { Checkout,CheckoutType,GroceryStore; CollectDataFromLPP,CollectDataType,Advertiser; CollectLoyaltyPoints,CollectLoyaltyPointsType,LoyaltyProgProvider; PrintTicket,PrintTicketType,GroceryStore; RequestLoyaltyInfo,RequestLoyaltyInfoType,LoyaltyProgProvider; ShowLoyaltyInfo,ShowLoyaltyInfoType,GroceryStore }
+
+RevealedToService = { Checkout,Bill,GroceryStore; Checkout,Products,GroceryStore; Checkout,QRCode,LoyaltyProgProvider; Checkout,SessGroceryStore,GroceryStore; CollectLoyaltyPoints,Address,User; CollectLoyaltyPoints,Bill,GroceryStore; CollectLoyaltyPoints,EMail,User; CollectLoyaltyPoints,PersonalProp,User; CollectLoyaltyPoints,PhoneNumber,User; CollectLoyaltyPoints,PointBalance,LoyaltyProgProvider; CollectLoyaltyPoints,PointsEarned,LoyaltyProgProvider; CollectLoyaltyPoints,QRCode,LoyaltyProgProvider; PrintTicket,PointBalance,LoyaltyProgProvider; PrintTicket,PointsEarned,LoyaltyProgProvider; PrintTicket,SessGroceryStore,GroceryStore; RequestLoyaltyInfo,Address,User; RequestLoyaltyInfo,Bill,GroceryStore; RequestLoyaltyInfo,EMail,User; RequestLoyaltyInfo,PersonalProp,User; RequestLoyaltyInfo,PhoneNumber,User; RequestLoyaltyInfo,PointBalance,LoyaltyProgProvider; RequestLoyaltyInfo,PointsToEarn,LoyaltyProgProvider; RequestLoyaltyInfo,QRCode,LoyaltyProgProvider; ShowLoyaltyInfo,PointBalance,LoyaltyProgProvider; ShowLoyaltyInfo,PointsToEarn,LoyaltyProgProvider; ShowLoyaltyInfo,SessGroceryStore,GroceryStore }
+
+ProfileAccessType = { Public; Restricted;}
+  PublicAccess = Public
+  RestrictedAccess = Restricted      
+    
+Profile = {  
+  ProfLoyaltyProgramProvider;
+}
+
+ProfAttr = {  
+  ProfLoyaltyProgramProvider,Address,User;
+  ProfLoyaltyProgramProvider,EMail,User;
+  ProfLoyaltyProgramProvider,PhoneNumber,User;
+  ProfLoyaltyProgramProvider,PersonalProp,User;
+  ProfLoyaltyProgramProvider,QRCode,LoyaltyProgProvider;
+  ProfLoyaltyProgramProvider,PointBalance,LoyaltyProgProvider;
+}
+
+ProfOwner = {
+  ProfLoyaltyProgramProvider,LoyaltyProgProvider;
+}
+
+ProfAccessType = {    
+  ProfLoyaltyProgramProvider,Restricted;
+}  
+
+ProfAccess = {   
+  ProfLoyaltyProgramProvider,LoyaltyProgProvider;
+}
+  
+// Trust perception by the user
+StorageTrust = {   
+  GroceryStore;
+  LoyaltyProgProvider;
+  LoyaltyAppProvider;    
+  Advertiser;
+  MobilePlatform;  
+  MobileOperator;
+}
+
+DistributionTrust = {   
+  GroceryStore;
+  LoyaltyProgProvider;
+  LoyaltyAppProvider;    
+  Advertiser;
+  MobilePlatform;  
+  MobileOperator;
+} 
+
+SearchSet = {
+  Bill; QRCode; Name; Address;
+}
+
+ViolationSet = {
+  Advertiser,EMail; Advertiser,Name; Advertiser,Address;
+}  
+
+UserProfile = { LoyaltyProgProvider,Nym1,Checkout,Address,User; LoyaltyProgProvider,Nym1,Checkout,Bill,GroceryStore; LoyaltyProgProvider,Nym1,Checkout,EMail,User; LoyaltyProgProvider,Nym1,Checkout,PersonalProp,User; LoyaltyProgProvider,Nym1,Checkout,PhoneNumber,User; LoyaltyProgProvider,Nym1,Checkout,PointBalance,LoyaltyProgProvider; LoyaltyProgProvider,Nym1,Checkout,PointsEarned,LoyaltyProgProvider; LoyaltyProgProvider,Nym1,Checkout,QRCode,LoyaltyProgProvider; LoyaltyProgProvider,Nym2,Checkout,Address,User; LoyaltyProgProvider,Nym2,Checkout,Bill,GroceryStore; LoyaltyProgProvider,Nym2,Checkout,EMail,User; LoyaltyProgProvider,Nym2,Checkout,PersonalProp,User; LoyaltyProgProvider,Nym2,Checkout,PhoneNumber,User; LoyaltyProgProvider,Nym2,Checkout,PointBalance,LoyaltyProgProvider; LoyaltyProgProvider,Nym2,Checkout,PointsEarned,LoyaltyProgProvider; LoyaltyProgProvider,Nym2,Checkout,QRCode,LoyaltyProgProvider; LoyaltyProgProvider,Nym3,Checkout,Address,User; LoyaltyProgProvider,Nym3,Checkout,Bill,GroceryStore; LoyaltyProgProvider,Nym3,Checkout,EMail,User; LoyaltyProgProvider,Nym3,Checkout,PersonalProp,User; LoyaltyProgProvider,Nym3,Checkout,PhoneNumber,User; LoyaltyProgProvider,Nym3,Checkout,PointBalance,LoyaltyProgProvider; LoyaltyProgProvider,Nym3,Checkout,PointsEarned,LoyaltyProgProvider; LoyaltyProgProvider,Nym3,Checkout,QRCode,LoyaltyProgProvider }
+
+ShareDataTo = { Advertiser,LoyaltyAppProvider; }
+
+TrustRelationShipsOf = {
+  LoyaltyProgProvider;  
+}
+
+}
+
+term minimize_criterion : VocPrivAndTrust {
+  #{ from to : ShareDataTo(from,to)}
+}
+
+include <mx>
+procedure main() {
+  // model expansion
+  stdoptions.nbmodels = 1
+  models = modelexpand(TheoryBasicInference,StructInputPrivAndTrust)  
+  printmodels(models)
+  
+  // minimization inference
+  //stdoptions.verbosity.solving = 1    // shows some debug
+  //print(minimize(TheoryBasicInference,StructInputPrivAndTrust,minimize_criterion)[1])
+}
