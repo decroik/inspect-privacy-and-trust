@@ -1,0 +1,787 @@
+/**
+ * Title:  Infer privacy in advanced electronic services.
+ * Using a loyalty app to participate in a QR-Code based loyalty system
+ * 
+ * Author: koen.dec...@gmail.com
+ */
+ 
+ /**
+  * Notes:
+  *   (1) : This is the realization of the inference presented in ------
+  *   (2) : In the paper only attributes are part of a profile.  However, more
+  *         precise conclusions are possible when assigned a stakeholder to
+  *         each attribute that asserts this attribute.  For instance, a user 
+  *         enters his name in an input text field on a site.  In this case, 
+  *         the user asserts the name.  Another example is a user that reveals 
+  *         the name on his identity card.  The government asserts the user's 
+  *         name because this card is issued by it.  This realization extends
+  *         profiles with these stakeholders.  It allows to estimate whether
+  *         attributes that are part of a user profile are trustworthy or not.
+  *         For instance, ones name asserted by the government is more 
+  *         trustworthy than the user's name asserted by the user himself.
+  */  
+
+vocabulary VocPrivAndTrust {
+  
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //  Vocabulary : Input model - System Model
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      
+  type AttrSrc  
+  
+  type Stakeholder isa AttrSrc         // Stakeholders in the organization
+  type User isa Stakeholder            // User in the system : set U
+  type Organization isa Stakeholder    // Organizations in the system : set O
+  
+  type Attribute                       // Attributes in the system : set A
+  type Property isa Attribute          // Properties
+  
+  type AuthToken isa AttrSrc           // Authentication tokens that are 
+                                       // used in the modeled system  
+                                       
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //  Vocabulary : Input model - Identifiabiltiy Model
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  
+  type Identifier                         // Identifier set
+  type Identity isa Identifier            // Identity set : set I
+  type Pseudonym isa Identifier           // Pseudonymity set : set N
+    
+  IdentifierSetAttr(Identifier, Attribute)  // Attr member of the Identity set                                       
+  
+  //----------------------------------------------------------------------------
+  // Services & Service Policies
+  //----------------------------------------------------------------------------  
+  type ServiceType                          // Services in the system : set S
+  type ServiceIdentifier isa AttrSrc
+    
+  // A service that is represented by a service instance is characterized 
+  // by the service type and its hosting organization
+  Service(ServiceIdentifier, ServiceType, Organization)
+  
+  type SessionIdentifier isa Identifier
+  
+  //Session, services within one session keeps volatile data into memory  
+  SessionMember(SessionIdentifier, ServiceIdentifier)
+  
+  // Service policies contain four sections
+  type AccessPolicy
+  type StoragePolicy
+  type DistributionPolicy
+  type OutputPolicy
+  
+  // This group of predicates specifies the service policy
+  OwnAuthToken(AccessPolicy,AuthToken)
+  RevealAttr(AccessPolicy, AttrSrc, Attribute, Stakeholder)
+  ProveProperty(AccessPolicy, Property, AttrSrc, Attribute, Stakeholder)
+  GenerateAttr(AccessPolicy, Attribute)
+  StoreAttr(StoragePolicy, Attribute, Stakeholder)
+  DistrAttrTo(DistributionPolicy, ServiceIdentifier, Attribute, Stakeholder)
+  OutputAttr(OutputPolicy, Attribute)  
+  
+  // Additional Output Policy Rules that are not implemented
+  //OutputCred(OutputPolicy, Credential)
+  //sOutputProf(OutputPolicy, Profile)
+  
+  // A service policy is assigned to each service instance.  Each service 
+  // policy is composed of an access policy, storage policy, distribution
+  // policy, and an output policy
+  ServicePolicies(ServiceIdentifier, AccessPolicy, StoragePolicy, DistributionPolicy, OutputPolicy)
+  
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //  Vocabulary : Input model - User Model
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  
+  
+  //  Trust perception of the user = two trust relations
+  StorageTrust(Organization)              // Set R_S
+  DistributionTrust(Organization)         // Set R_D  
+    
+  // User's initial state
+  
+  // ** 1) Claim-based authentication technologies
+  type ClaimBasedTech
+  X509Tech : ClaimBasedTech
+  IdemixTech : ClaimBasedTech  
+  
+  type Credential isa AuthToken           // Credential references  
+  
+  CredAttr(Credential, Attribute)         // Credential's attributes  
+  CredTech(Credential, ClaimBasedTech)    // Credential technology
+  CredIssuer(Credential, Organization)    // Organization that issues credential 
+    
+  // ** 2) Network-based technologies  
+  type ProfileAccessType  
+  RestrictedAccess : ProfileAccessType  
+  PublicAccess : ProfileAccessType  
+    
+  type Profile isa AuthToken                 // Profile references
+  
+  ProfAttr(Profile, Attribute, Stakeholder)  // (attr,stake) in profile
+  ProfAccessType(Profile, ProfileAccessType) // Profile technology
+  ProfOwner(Profile, Organization)           // Profile host
+  ProfAccess(Profile, Organization)          // Access Profile
+  //----------------------------------------------------------------------------  
+  
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //  Vocabulary : Internal symbols
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  
+    
+  // Storage trust in service instance that is deduced from the     
+  StorageTrustServInstance(ServiceIdentifier)
+  DistributionTrustServInstance(ServiceIdentifier)
+  
+  // Helper predicates that relates a service identifier to its sub policies
+  ServiceAccessPolicy(ServiceIdentifier, AccessPolicy)
+  ServiceDistributionPolicy(ServiceIdentifier, DistributionPolicy)
+  
+  // Service instance invocations by users 
+  ServiceInvokedByUser(ServiceIdentifier)
+  
+  // Service instance (arg 1) directly invoked by service instance (arg 2)
+  Successor(ServiceIdentifier, ServiceIdentifier)
+  
+  // Service instance (arg1) invoked by service instance (arg2)
+  ServiceInvokedBy(ServiceIdentifier, ServiceIdentifier)  
+  
+  // Attributes that are generated by a service instance are revealed to it.
+  GeneratedByService(ServiceIdentifier, Attribute, Stakeholder)
+  
+  // Attributes that are directly revealed when invoking a service instance
+  RevealedToService(ServiceIdentifier, Attribute, Stakeholder)
+  
+  // Attributes that are forwarded by a service instance (arg1) to a service
+  // instance (arg 2) that it directly invokes 
+  ForwardedByServiceToSucc(ServiceIdentifier, ServiceIdentifier, Attribute, Stakeholder)
+  
+  // Attributes that are specified in the storage policy  
+  ServiceStoredPolicyAttr(ServiceIdentifier, Attribute, Stakeholder)
+  
+  // Attributes that are stored when revealed when invoking a service instance
+  ServiceStoredRevealAttr(ServiceIdentifier, Attribute, Stakeholder)
+  
+  // A path between two services that contains no services that are 
+  // distribution trusted.
+  UntrustedPath(ServiceIdentifier, ServiceIdentifier)  
+    
+  // Attributes that are distributes by preceding service instances
+  ServiceStoredForwardAttr(ServiceIdentifier, ServiceIdentifier, Attribute, Stakeholder)
+                             
+  // The sub-profiles that are built for a service instance (arg 1) invoked
+  // by a user invokable service (arg 2).                              
+  SubProfile(ServiceIdentifier, ServiceIdentifier, Attribute, Stakeholder)
+  
+  // Helper predicate, identifiers of a profile
+  ProfIdentifier(Profile,Identifier)
+  
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // Vocabulary : Output symbols
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  
+  // The user profiles to construct for a user invokable service instance
+  UserProfile(Organization, Identifier, ServiceIdentifier, Attribute, Stakeholder)
+  
+  AnonService(ServiceIdentifier)
+  PseudoService(ServiceIdentifier)
+  IdentService(ServiceIdentifier)  
+}
+
+theory TheoryBasicInference : VocPrivAndTrust {
+  
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // Theory : behavior
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  
+  // Storage trust of a user for a service instance is derived from the storage
+  // trust in the organization that hosts the service instance.
+  {
+    ! si : StorageTrustServInstance(si) <- ? o st : StorageTrust(o) & Service(si,st,o).
+  }  
+  
+  // Distribution trust of a user for a service instance is derived from the 
+  // distribution trust in the organization that hosts the service instance.
+  {
+    ! si : DistributionTrustServInstance(si) <- ? o st : DistributionTrust(o) & 
+                                         Service(si,st,o).
+  }
+  
+  // Helper predicate that relates a service identifier to its access policy
+  {
+    ! si ap : ServiceAccessPolicy(si,ap) <- ? sp dp op : 
+                                          ServicePolicies(si,ap,sp,dp,op).
+  }
+  
+    // Helper predicate that relates a service identifier to its distribution
+    // policy
+  {
+    ! si dp : ServiceDistributionPolicy(si,dp) <- ? ap sp op : 
+                                          ServicePolicies(si,ap,sp,dp,op). 
+  }  
+  
+  // Attributes that are generated by a service instance are revealed to it.
+  {
+    ! si a e : GeneratedByService(si,a,e) <- ? ap s :
+                                      ServiceAccessPolicy(si,ap) &
+                                      GenerateAttr(ap,a) &
+                                      Service(si,s,e).
+  }  
+  
+  // The attributes that are revealed to the service instance.
+  {
+    // Service policy dependent part
+    //  (1)   : Reveal the attributes that are specified in the access control
+    //          policy
+    //  (2)   : When proving a property, the property itself is revealed
+    //  (3)   : Attributes that are generated by the service instance are 
+    //          revealed
+    //  (4)   : Session identifier is a linkable attribute (nym) that is 
+    //          revealed to each service that is part of the same session
+    ! si a e : RevealedToService(si,a,e) <- ? ap as : 
+                                      ServiceAccessPolicy(si,ap) &
+                                      RevealAttr(ap,as,a,e).
+    
+    ! si prop e : RevealedToService(si,prop,e) <- ? ap as a :
+                                      ServiceAccessPolicy(si,ap) &
+                                      ProveProperty(ap,prop,as,a,e).                                      
+   
+    ! si a e : RevealedToService(si,a,e) <- GeneratedByService(si,a,e).
+    
+    ! si a e : RevealedToService(si,a,e) <- ? s sessid : 
+                            SessionMember(sessid,si) & Service(si,s,e) &
+                            IdentifierSetAttr(sessid,a).
+    
+    // Technology dependent part: certificates
+    //  (1)   : X509 - when proving a property, the required attributes are also
+    //                 revealed
+    //  (2)   : X509 - all attributes are revealed when using a X509 
+    //                 certificate
+    //  (3)   : X509 - when proving a property, all attributes of the 
+    //                 certificate are revealed                              
+    //  (4)   : X509 - all attributes are revealed when proving ownership
+    //                 of a X509 certificate
+    ! si a e : RevealedToService(si,a,e) <- ? ap as prop : 
+                                      Credential(as) & CredTech(as,X509Tech) &                                      
+                                      ServiceAccessPolicy(si,ap) &
+                                      ProveProperty(ap,prop,as,a,e).
+    
+    ! si a e : RevealedToService(si,a,e) <- ? ap as a_0 e_0 :
+                                      Credential(as) & CredTech(as,X509Tech) &
+                                      ServiceAccessPolicy(si,ap) &
+                                      RevealAttr(ap,as,a_0,e_0) &                                      
+                                      CredAttr(as,a) & CredIssuer(as,e).
+                                      
+    //! si a e : RevealedToService(si,a,e) <- ? ap as prop a_0 e_0 :
+    //                                  Credential(as) & CredTech(as,X509Tech) &
+    //                                  ServiceAccessPolicy(si,ap) &
+    //                                  ProveProperty(ap,prop,as,a_0,e_0) &                                                                        
+    //                                  CredAttr(as,a) & CredIssuer(as,e).
+                                      
+    ! si a e : RevealedToService(si,a,e) <- ? ap at :                                      
+                                      ServiceAccessPolicy(si,ap) &
+                                      OwnAuthToken(ap,at) & 
+                                      CredAttr(at,a) & CredIssuer(at,e).
+                                      
+    // Technology depend part: profiles
+    //  (1)   : Public profiles are accessible to any organization
+    //  (2)   : Only a restricted group of organizations have access to the
+    //          profile.  
+    ! si a e : RevealedToService(si,a,e) <- ? p : 
+                                      ProfAccessType(p,PublicAccess) & 
+                                      ProfAttr(p,a,e).
+                                      
+    ! si a e : RevealedToService(si,a,e) <- ? p s o :
+                                      ProfAccessType(p,RestrictedAccess) & 
+                                      Service(si,s,o) & ProfAccess(p,o) & 
+                                      ProfAttr(p,a,e).                                   
+  }  
+  
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // Theory : inference
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++    
+  
+  // A service instance (arg 2) is a successor of another service 
+  // instance (arg 1) when the latter directly invokes the former.  This is
+  // derived from the distribution policy that is assigned to the latter.
+  // Possibly, multiple successors exist (i.e. all successors are concurrent).
+  {
+    ! si succ : Successor(si,succ) <- ? dp a e : 
+                            ServiceDistributionPolicy(si,dp) &
+                            DistrAttrTo(dp,succ,a,e).
+  }  
+  // Add constraint on successor here.
+  
+  // A user invokable service is no successor of any other service instance.
+  {
+    ! si : ServiceInvokedByUser(si) <- ~(? pred : Successor(pred,si)).
+  }   
+  
+  // Service instance invocations propagate from one to another.
+  //  (1)   : A service instance (arg 2) invokes its successors (arg 1).
+  //  (2)   : A service instance (arg 2) invokes indirectly other 
+  //          service instances (arg 1) = transitivity
+  {
+    ! succ si : ServiceInvokedBy(succ,si) <- Successor(si,succ).
+    ! si_2 si_0 : ServiceInvokedBy(si_2,si_0) <- ? si_1 : 
+                                        ServiceInvokedBy(si_1,si_0) &  // make successor instead - iets efficiënter
+                                        ServiceInvokedBy(si_2,si_1).
+  }
+    
+  // Attributes that must be stored by a service instance as specified in the
+  // assigned storage policy.
+  {
+    ! si a e : ServiceStoredPolicyAttr(si,a,e) <- ? ap sp dp op :
+                                        ServicePolicies(si,ap,sp,dp,op) &
+                                        StoreAttr(sp,a,e).
+  }  
+  
+  // All attributes that are revealed by the user to the service instance are 
+  // stored under the assumption that there is no storage trust in the
+  // organization that hosts this service instance. 
+  {
+    ! si a e : ServiceStoredRevealAttr(si,a,e) <- RevealedToService(si,a,e).                                      
+  }
+  
+  // Attributes that are forwarded by a service instance (arg1) to a service
+  // instance (arg 2) that is directly invoked by it.
+  //    (1)   : Forward attributes that are specified in the distribution 
+  //            policy
+  //    (2)   : Forward all revealed attributes When there is no distribution 
+  //            trust in the organization that hosts the service instance
+  {    
+    ! si succ a e : ForwardedByServiceToSucc(si,succ,a,e) <- ? dp :
+                                        DistributionTrustServInstance(si) &
+                                        ServiceDistributionPolicy(si,dp) &
+                                        DistrAttrTo(dp,succ,a,e).
+                                        
+    ! si succ a e : ForwardedByServiceToSucc(si,succ,a,e) <- ? dp ax ex :
+                                        ~DistributionTrustServInstance(si) &
+                                        ServiceDistributionPolicy(si,dp) &
+                                        DistrAttrTo(dp,succ,ax,ex) &
+                                        RevealedToService(si,a,e).
+  }
+  
+  // Path where services between (start) and (end) have no distribution trust  
+  {
+    ! start succ : UntrustedPath(start,succ) <- 
+                    Successor(start,succ) & 
+                    ~DistributionTrustServInstance(succ).
+    ! start si : UntrustedPath(start,si) <- ? si_x : 
+                    UntrustedPath(start,si_x) & Successor(si_x,si) & 
+                    ~DistributionTrustServInstance(si_x).
+  }
+      
+  // All attributes that are forwarded to a service instance (arg 1) by other
+  // preceding service instance caused by a user invoked service (arg 2) are
+  // stored under the assumption that there is no storage trust in the
+  // organization that hosts this service instance (arg 1)
+  //  (1)   : when service instance (arg 1) is successor of a user invoked
+  //          service  
+  //  (2)   : when service instance (arg 1) is successor of source
+  //  (3)   : in case of the user invoked service is the source of attributes
+  //  (4)   : in case other services in the path are the source of attributes
+  {
+    ! si su a e : ServiceStoredForwardAttr(si,su,a,e) <-
+                                   ServiceInvokedByUser(su) &
+                                   ForwardedByServiceToSucc(su,si,a,e).
+                                       
+    ! si su a e : ServiceStoredForwardAttr(si,su,a,e) <- ? src :
+                                   ServiceInvokedByUser(su) &
+                                   ServiceInvokedBy(src,su) &
+                                   ForwardedByServiceToSucc(src,si,a,e).
+                                   
+    ! si su a e : ServiceStoredForwardAttr(si,su,a,e) <- ? succ : 
+                                   ServiceInvokedByUser(su) &
+                                   UntrustedPath(su,si) &
+                                   ServiceInvokedBy(si,succ) &
+                                   ForwardedByServiceToSucc(su,succ,a,e).
+                                    
+    ! si su a e : ServiceStoredForwardAttr(si,su,a,e) <- ? src succ :
+                                   ServiceInvokedByUser(su) &
+                                   UntrustedPath(src,si) & 
+                                   ServiceInvokedBy(src,su) &
+                                   ServiceInvokedBy(si,succ) &
+                                   ForwardedByServiceToSucc(src,succ,a,e).
+  }
+  
+  // Store all attributes in the sub profile that are the causation of the
+  // service instance (arg 1) invoked (directly or indirectly) by a user
+  // invoked service (arg 2).  Three attributes sources exist, namely
+  //  (1)   : attributes specified in the storage policy of a 
+  //          user invoked service 
+  //  (2)   : attributes revealed by the user (if no storage trust) of a user
+  //          invoked service
+  //  (3)   : attributes specified in the storage policy
+  //  (4)   : attributes revealed by the user (if no storage trust)
+  //  (5)   : attributes forwarded by preceding service instance (if no storage
+  //          trust).
+  {
+    ! su a e :    SubProfile(su,su,a,e) <- ServiceInvokedByUser(su) &
+                             ServiceStoredPolicyAttr(su,a,e).                                 
+    ! su a e :    SubProfile(su,su,a,e) <- ~StorageTrustServInstance(su) &
+                             ServiceInvokedByUser(su) &
+                             ServiceStoredRevealAttr(su,a,e).                                                     
+    ! si su a e : SubProfile(si,su,a,e) <- ServiceInvokedByUser(su) &                             
+                             ServiceInvokedBy(si,su) &
+                             ServiceStoredPolicyAttr(si,a,e).
+    ! si su a e : SubProfile(si,su,a,e) <- ~StorageTrustServInstance(si) &
+                             ServiceInvokedByUser(su) &
+                             ServiceInvokedBy(si,su) &
+                             ServiceStoredRevealAttr(si,a,e).
+    ! si su a e : SubProfile(si,su,a,e) <- ~StorageTrustServInstance(si) & 
+                             ServiceInvokedByUser(su) &
+                             ServiceInvokedByUser(su) &
+                             ServiceInvokedBy(si,su) &
+                             ServiceStoredForwardAttr(si,su,a,e).
+  }
+  
+  //Helper predicate, find identifiers of profiles
+  {
+    ! p id : ProfIdentifier(p,id) <- ~(? a : IdentifierSetAttr(id,a) & 
+                                          ~(? e : ProfAttr(p,a,e))). 
+  }
+  
+  // Merging sub profiles to user profiles kept by organization (arg 1) linked
+  // to an identifier (arg 2) that are the causation of a user invoked service
+  // (arg 3).
+  //  (1)   : User profiles are constructed by sub profiles
+  //  (2)   : Merged user profiles can be linked to newly formed identifiers
+  //          that were partially present in different sub profiles.
+  //  (3)   : Link an organization's user profile that is linked to an 
+  //          identifier to an a-priori public available profile owned by that 
+  //          same organization. 
+  //  (3)   : Link an organization's user profile that is linked to an 
+  //          identifier to an a-priori restricted available profile owned 
+  //          by that same organization.
+  {    
+    ! o id su a e  : UserProfile(o,id,su,a,e) <- ? si s :
+                               SubProfile(si,su,a,e) &
+                               Service(si,s,o) &
+                               ~(? a_x : IdentifierSetAttr(id,a_x) & 
+                                         ~(? e_x : SubProfile(si,su,a_x,e_x))).
+                                         
+    ! o id su a e : UserProfile(o,id,su,a,e) <-  ? id_x :                           
+                               UserProfile(o,id_x,su,a,e) &
+                               ~(? a_x : IdentifierSetAttr(id,a_x) & 
+                                        ~(? e_x : UserProfile(o,id_x,su,a_x,e_x))).
+                                        
+    ! o id su a e : UserProfile(o,id,su,a,e) <- ? p a_x e_x :
+                              UserProfile(o,id,su,a_x,e_x) & 
+                              ProfIdentifier(p,id) &
+                              ProfOwner(p,o) & 
+                              ProfAccessType(p,PublicAccess) &                              
+                              ProfAttr(p,a,e).
+                              
+    ! o id su a e : UserProfile(o,id,su,a,e) <- ? p a_x e_x :
+                              UserProfile(o,id,su,a_x,e_x) &
+                              ProfIdentifier(p,id) &
+                              ProfOwner(p,o) &
+                              ProfAccessType(p,RestrictedAccess) & 
+                              ProfAccess(p,o) &                 
+                              ProfAttr(p,a,e).
+  }  // negaties weghalen door voor alle te gebruiken.  
+}  
+
+structure StructInputPrivAndTrust : VocPrivAndTrust {
+  
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // System model
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+  AttrSrc = { 
+    User;
+    GroceryStore;
+    LoyaltyProgProvider;
+    LoyaltyAppProvider;    
+    Advertiser;
+    MobilePlatform;  
+    MobileOperator;
+     
+    Checkout;
+    RequestLoyaltyInfo; ShowLoyaltyInfo;
+    CollectLoyaltyPoints;
+    PrintTicket;    
+    CollectDataFromLPP;
+    
+    LoyaltyCard;     
+    ProfLoyaltyProgramProvider;        
+  }
+  
+  Stakeholder = {
+    User;
+    GroceryStore;
+    LoyaltyProgProvider;
+    LoyaltyAppProvider;    
+    Advertiser;
+    MobilePlatform;  
+    MobileOperator;
+  }
+  
+  User = {
+    User;
+  }
+  
+  Organization = {    
+    GroceryStore;
+    LoyaltyProgProvider;
+    LoyaltyAppProvider;    
+    Advertiser;
+    MobilePlatform;  
+    MobileOperator;
+  }
+  
+  Attribute = {
+    // From user
+    Name; Address; EMail; PhoneNumber;
+    PersonalProp;                     //DoB; Gender; FamilySituation; Language;      
+    
+    // From loyalty program provider
+    QRCode; PointsToEarn; PointsEarned; PointBalance;
+    
+    // From the grocery store
+    Bill; Products; 
+    
+    // Session specific
+    SessGroceryStore;
+  }   
+  
+  Property = {
+    NoProp;
+  }
+  
+  // Services & Service Policies
+  ServiceType = {
+    CheckoutType;
+    RequestLoyaltyInfoType; ShowLoyaltyInfoType;
+    CollectLoyaltyPointsType;
+    PrintTicketType;
+    CollectDataType;
+  }
+  
+  ServiceIdentifier = {   
+    Checkout;
+    RequestLoyaltyInfo; ShowLoyaltyInfo;
+    CollectLoyaltyPoints;
+    PrintTicket;    
+    CollectDataFromLPP;     
+  }
+  
+  SessionMember = {
+    NymSessGroceryStore,Checkout;
+    NymSessGroceryStore,ShowLoyaltyInfo;
+    NymSessGroceryStore,PrintTicket;
+  }
+  
+  Service = {
+    Checkout,CheckoutType,GroceryStore;
+    RequestLoyaltyInfo,RequestLoyaltyInfoType,LoyaltyProgProvider;
+    ShowLoyaltyInfo,ShowLoyaltyInfoType,GroceryStore;
+    CollectLoyaltyPoints,CollectLoyaltyPointsType,LoyaltyProgProvider;
+    PrintTicket,PrintTicketType,GroceryStore;
+    CollectDataFromLPP,CollectDataType,Advertiser;
+  }
+  
+  AccessPolicy = {
+    CheckoutAP; RequestLoyaltyInfoAP; 
+    ShowLoyaltyInfoAP; CollectLoyaltyPointsAP; PrintTicketAP;
+    NoneAP;
+  }
+  
+  StoragePolicy = {
+    CollectLoyaltyPointsSP;
+    NoneSP;
+  }
+  
+  DistributionPolicy = { 
+    CheckoutDP; RequestLoyaltyInfoDP; 
+    ShowLoyaltyInfoDP; CollectLoyaltyPointsDP;
+    NoneDP;
+  }
+  
+  OutputPolicy = {     
+    ShowLoyaltyInfoOP; PrintTicketOP;
+    NoneOP;
+  }
+  
+  OwnAuthToken = {
+    CheckoutAP,LoyaltyCard;       
+  }  
+          
+  RevealAttr = {    
+    CheckoutAP,LoyaltyCard,QRCode,LoyaltyProgProvider;
+    CheckoutAP,User,Products,GroceryStore;    
+    
+    RequestLoyaltyInfoAP,Checkout,QRCode,LoyaltyProgProvider;
+    RequestLoyaltyInfoAP,Checkout,Bill,GroceryStore;    
+    
+    ShowLoyaltyInfoAP,RequestLoyaltyInfo,PointBalance,LoyaltyProgProvider;
+    ShowLoyaltyInfoAP,RequestLoyaltyInfo,PointsToEarn,LoyaltyProgProvider;
+    
+    CollectLoyaltyPointsAP,ShowLoyaltyInfo,QRCode,LoyaltyProgProvider;
+    CollectLoyaltyPointsAP,ShowLoyaltyInfo,Bill,GroceryStore;
+    
+    PrintTicketAP,CollectLoyaltyPoints,PointBalance,LoyaltyProgProvider;
+    PrintTicketAP,CollectLoyaltyPoints,PointsEarned,LoyaltyProgProvider;    
+  }
+  
+  ProveProperty = {
+    
+  }
+    
+  GenerateAttr = {
+    CheckoutAP,Bill;
+    RequestLoyaltyInfoAP,PointsToEarn;
+    CollectLoyaltyPointsAP,PointsEarned;    
+  }
+  
+  StoreAttr = {    
+    CollectLoyaltyPointsSP,Bill,GroceryStore;
+    CollectLoyaltyPointsSP,QRCode,LoyaltyProgProvider;
+    CollectLoyaltyPointsSP,PointsEarned,LoyaltyProgProvider;
+    CollectLoyaltyPointsSP,PointBalance,LoyaltyProgProvider;
+  }
+  
+  DistrAttrTo = {        
+    CheckoutDP,RequestLoyaltyInfo,QRCode,LoyaltyProgProvider;
+    CheckoutDP,RequestLoyaltyInfo,Bill,GroceryStore;
+    
+    RequestLoyaltyInfoDP,ShowLoyaltyInfo,PointsToEarn,LoyaltyProgProvider;
+    RequestLoyaltyInfoDP,ShowLoyaltyInfo,PointBalance,LoyaltyProgProvider;
+         
+    ShowLoyaltyInfoDP,CollectLoyaltyPoints,QRCode,LoyaltyProgProvider;
+    ShowLoyaltyInfoDP,CollectLoyaltyPoints,Bill,GroceryStore;
+    
+    CollectLoyaltyPointsDP,PrintTicket,PointBalance,LoyaltyProgProvider;
+    CollectLoyaltyPointsDP,PrintTicket,PointsEarned,LoyaltyProgProvider;
+        
+    CollectLoyaltyPointsDP,CollectDataFromLPP,Bill,GroceryStore;       
+  }
+  
+  OutputAttr = {
+    ShowLoyaltyInfoOP,PointsToEarn; ShowLoyaltyInfoOP,PointBalance;
+    PrintTicketOP,PointsEarned; PrintTicketOP,PointBalance; PrintTicketOP,Bill;      
+  }
+   
+  ServicePolicies = {    
+    Checkout,CheckoutAP,NoneSP,CheckoutDP,NoneOP;
+    RequestLoyaltyInfo,RequestLoyaltyInfoAP,NoneSP,RequestLoyaltyInfoDP,NoneOP;
+    ShowLoyaltyInfo,ShowLoyaltyInfoAP,NoneSP,ShowLoyaltyInfoDP,ShowLoyaltyInfoOP;
+    CollectLoyaltyPoints,CollectLoyaltyPointsAP,CollectLoyaltyPointsSP,CollectLoyaltyPointsDP,NoneOP;
+    PrintTicket,PrintTicketAP,NoneSP,NoneDP,PrintTicketOP;   
+    CollectDataFromLPP,NoneAP,NoneSP,NoneDP,NoneOP;   
+  }
+  
+  
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // User model
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  
+  
+  // Trust perception by the user
+  StorageTrust = {   
+    GroceryStore;
+    MobilePlatform;  
+    MobileOperator;
+  }
+  
+  DistributionTrust = {  
+    GroceryStore;
+    MobilePlatform;  
+    MobileOperator;
+  }
+   
+  // Initial state of the user
+  ClaimBasedTech = { PlasticCard; X509; Idemix; }   
+  X509Tech = X509
+  IdemixTech = Idemix
+  Credential = { LoyaltyCard; }
+  
+  CredAttr = {
+    LoyaltyCard,QRCode;
+  }
+  
+  CredTech = {
+    LoyaltyCard,PlasticCard;
+  }
+  
+  CredIssuer = {
+    LoyaltyCard,LoyaltyProgProvider;
+  }
+  
+  ProfileAccessType = { Public; Restricted;}
+  PublicAccess = Public
+  RestrictedAccess = Restricted      
+    
+  Profile = {  
+    ProfLoyaltyProgramProvider;
+  }
+  
+  ProfAttr = {   
+    ProfLoyaltyProgramProvider,Address,User;
+    ProfLoyaltyProgramProvider,EMail,User;
+    ProfLoyaltyProgramProvider,PhoneNumber,User;
+    ProfLoyaltyProgramProvider,PersonalProp,User;
+    ProfLoyaltyProgramProvider,QRCode,LoyaltyProgProvider;
+    ProfLoyaltyProgramProvider,PointBalance,LoyaltyProgProvider;
+  }
+  
+  ProfOwner = {   
+    ProfLoyaltyProgramProvider,LoyaltyProgProvider;
+  }
+  
+  ProfAccessType = {    
+    ProfLoyaltyProgramProvider,Restricted;
+  }  
+  
+  ProfAccess = {
+    ProfLoyaltyProgramProvider,LoyaltyProgProvider;
+  } 
+         
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // Identifiability model
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Identifier = { Identity1; Identity2;
+                 Nym1; Nym2; Nym3;
+                 NymSessGroceryStore;
+  }
+  
+  Identity = { Identity1; Identity2; }
+  
+  Pseudonym = { Nym1; Nym2; Nym3;
+    NymSessGroceryStore;
+  }
+    
+  IdentifierSetAttr = {
+    Identity1,Name; Identity2,Address;
+    Nym1,PhoneNumber; Nym2,EMail; Nym3,QRCode;    
+    NymSessGroceryStore,SessGroceryStore;    
+  }
+}
+ 
+//query Query1 : VocPrivAndTrust {
+//    { o id si a e : UserProfile(o,id,si,a,e) }
+//}
+
+include <mx>
+procedure main() {
+  stdoptions.nbmodels = 1
+  stdoptions.xsb = true
+  
+  models = modelexpand(TheoryBasicInference,StructInputPrivAndTrust)
+  printmodels(models)
+}
