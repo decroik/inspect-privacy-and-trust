@@ -6,7 +6,6 @@ vocabulary VocPrivAndTrust {
   type Pseudonym isa Identifier
   type Identity isa Identifier
   type ServiceIdentifier
-  type ServiceChainIdentifier             // DECROIK NEW 2
   type ServiceType
   type Attribute
   
@@ -35,7 +34,6 @@ vocabulary VocPrivAndTrust {
   
   RevealedToService(ServiceIdentifier,Attribute,Stakeholder)
   Service(ServiceIdentifier,ServiceType,Organization)
-  ServiceAfter(ServiceChainIdentifier,ServiceIdentifier,ServiceIdentifier)   // DECROIK NEW 2
   
   // Queries type 1 - linkabilities
   AnonService(ServiceIdentifier,Organization)
@@ -96,32 +94,18 @@ theory TheoryBasicInference : VocPrivAndTrust {
                                           ~(? e : ProfAttr(p,a,e))). 
   }
   
-    // DECROIK NEW 2 : Collaboration and service chains
+  // Query type 3: Collaborative aspects requires, see rule 2 in definition.
   {
-    ! o id si a e : UserProfileQ(o,id,si,a,e) <- UserProfile(o,id,si,a,e).    
-    ! o id si a e : UserProfileQ(o,id,si,a,e) <- ? ch si_p a_x e_x :
-                              ServiceAfter(ch,si,si_p) &  
-                              UserProfileQ(o,id,si,a_x,e_x) & 
-                              UserProfileQ(o,id,si_p,a,e).
-    
-    ! o id si a e : UserProfileQ(o,id,si,a,e) <- ? o_x : 
-                              ShareDataTo(o_x,o) & 
-                              UserProfileQ(o_x,id,si,a,e).
-                              
-    ! o id si a e : UserProfileQ(o,id,si,a,e) <- ? ch o_p si_p a_x e_x : 
-                              ShareDataTo(o_p,o) & 
-                              ServiceAfter(ch,si,si_p) &
-                              UserProfileQ(o,id,si,a_x,e_x) & 
-                              UserProfile(o_p,id,si_p,a,e).
-    
-    ! o id si a e : UserProfileQ(o,id,si,a,e) <-  ? id_x :                 
+    ! o id si a e : UserProfileQ(o,id,si,a,e) <- UserProfile(o,id,si,a,e).
+    ! o id si a e : UserProfileQ(o,id,si,a,e) <- ? o_x : UserProfileQ(o_x,id,si,a,e) & ShareDataTo(o_x,o).
+    ! o id si a e : UserProfileQ(o,id,si,a,e) <-  ? id_x :                           
                                UserProfileQ(o,id_x,si,a,e) &
                                ~(? a_x : IdentifierSetAttr(id,a_x) & 
                                         ~(? e_x : UserProfileQ(o,id_x,si,a_x,e_x))).
                                         
     ! o id si a e : UserProfileQ(o,id,si,a,e) <- ? p a_x e_x :
                               StorageTrust(o) &
-                              UserProfileQ(o,id,si,a_x,e_x) & 
+                              UserProfile(o,id,si,a_x,e_x) & 
                               ProfIdentifier(p,id) &
                               ProfOwner(p,o) & 
                               ProfAccessType(p,PublicAccess) &                              
@@ -240,10 +224,6 @@ ServiceIdentifier = {
   CollectDataFromLPP;    
 }
 
-ServiceChainIdentifier = {
-  Chain;  // DECROIK NEW
-}
-
 ServiceType = { 
   CheckoutType; CollectDataType; CollectLoyaltyPointsType; 
   PrintTicketType; RequestLoyaltyInfoType; SelectLoyaltyCardType; 
@@ -282,7 +262,6 @@ ServiceInvokedByUser = {
 }
 
 Service = { Checkout,CheckoutType,GroceryStore; CollectDataFromLAP,CollectDataType,Advertiser; CollectDataFromLPP,CollectDataType,Advertiser; CollectLoyaltyPoints,CollectLoyaltyPointsType,LoyaltyProgProvider; PrintTicket,PrintTicketType,GroceryStore; RequestLoyaltyInfo,RequestLoyaltyInfoType,LoyaltyProgProvider; SelectLoyaltyCard,SelectLoyaltyCardType,LoyaltyAppProvider; ShowLoyaltyInfo,ShowLoyaltyInfoType,GroceryStore }
-ServiceAfter = { Chain,Checkout,SelectLoyaltyCard; }   // DECROIK NEW 2
 
 RevealedToService = { Checkout,Bill,GroceryStore; Checkout,Products,GroceryStore; Checkout,QRCode,LoyaltyProgProvider; Checkout,SessGroceryStore,GroceryStore; CollectLoyaltyPoints,Address,User; CollectLoyaltyPoints,Bill,GroceryStore; CollectLoyaltyPoints,EMail,User; CollectLoyaltyPoints,PersonalProp,User; CollectLoyaltyPoints,PhoneNumber,User; CollectLoyaltyPoints,PointBalance,LoyaltyProgProvider; CollectLoyaltyPoints,PointsEarned,LoyaltyProgProvider; CollectLoyaltyPoints,QRCode,LoyaltyProgProvider; PrintTicket,PointBalance,LoyaltyProgProvider; PrintTicket,PointsEarned,LoyaltyProgProvider; PrintTicket,SessGroceryStore,GroceryStore; RequestLoyaltyInfo,Address,User; RequestLoyaltyInfo,Bill,GroceryStore; RequestLoyaltyInfo,EMail,User; RequestLoyaltyInfo,PersonalProp,User; RequestLoyaltyInfo,PhoneNumber,User; RequestLoyaltyInfo,PointBalance,LoyaltyProgProvider; RequestLoyaltyInfo,PointsToEarn,LoyaltyProgProvider; RequestLoyaltyInfo,QRCode,LoyaltyProgProvider; SelectLoyaltyCard,EMail,User; SelectLoyaltyCard,Location,MobileOperator; SelectLoyaltyCard,Location,MobilePlatform; SelectLoyaltyCard,MobileNetworkFingerprint,MobilePlatform; SelectLoyaltyCard,Name,User; SelectLoyaltyCard,PlatformFingerprint,MobilePlatform; SelectLoyaltyCard,QRCode,LoyaltyProgProvider; SelectLoyaltyCard,VisitStat,LoyaltyAppProvider; ShowLoyaltyInfo,PointBalance,LoyaltyProgProvider; ShowLoyaltyInfo,PointsToEarn,LoyaltyProgProvider; ShowLoyaltyInfo,SessGroceryStore,GroceryStore }
 
@@ -359,7 +338,7 @@ IsAnonService = {
 
 NoIdentService = {
   //Checkout,LoyaltyAppProvider;
-  //Checkout,LoyaltyProgProvider; 
+  Checkout,LoyaltyProgProvider; 
 }
 
 NoPseudoService = {  
