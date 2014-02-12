@@ -1,0 +1,161 @@
+Warning: Derived sort Stakeholder for variable o_q as nearest parent of Stakeholder and Organization
+Warning: Verifying and/or autocompleting input structures.
+Warning: Sort ServiceType in structure StructInputPrivAndTrust has an empty interpretation.
+>>> Search start
+> Conflicts |          ORIGINAL         |          LEARNT          | Progress
+>           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |         
+>>> Initializing inductive definition 22
+> restarts              : 1
+> decisions             : 1  (0 % random)
+> conflicts             : 0
+> propagations          : 7
+> conflict literals     : 0  (-nan % deleted)
+> 1 model found
+>>> Search done
+Starting solving at 6830ms
+>>> Search start
+>>> Initializing inductive definition 24
+> Number of rules : 720678.
+> Number of recursive atoms in positive loops : 161254.
+> restarts              : 1
+> decisions             : 5181  (0 % random)
+> conflicts             : 3
+> propagations          : 736570
+> conflict literals     : 6  (0 % deleted)
+> Current optimal value 17
+> restarts              : 2
+> decisions             : 5182  (0 % random)
+> conflicts             : 4
+> propagations          : 736571
+> conflict literals     : 6  (0 % deleted)
+> Current optimal value 16
+> restarts              : 3
+> decisions             : 5184  (0 % random)
+> conflicts             : 6
+> propagations          : 736598
+> conflict literals     : 22  (0 % deleted)
+> Current optimal value 15
+> restarts              : 4
+> decisions             : 7736  (0 % random)
+> conflicts             : 8
+> propagations          : 749556
+> conflict literals     : 24  (0 % deleted)
+> Current optimal value 14
+> restarts              : 5
+> decisions             : 10266  (0 % random)
+> conflicts             : 13
+> propagations          : 753016
+> conflict literals     : 80  (0 % deleted)
+> Current optimal value 13
+> restarts              : 6
+> decisions             : 12788  (0 % random)
+> conflicts             : 18
+> propagations          : 756592
+> conflict literals     : 132  (0 % deleted)
+> Current optimal value 12
+> restarts              : 7
+> decisions             : 15305  (0 % random)
+> conflicts             : 33
+> propagations          : 769836
+> conflict literals     : 301  (0 % deleted)
+> Current optimal value 11
+> restarts              : 8
+> decisions             : 17778  (0 % random)
+> conflicts             : 37
+> propagations          : 775997
+> conflict literals     : 341  (0 % deleted)
+> Current optimal value 10
+> restarts              : 9
+> decisions             : 20220  (0 % random)
+> conflicts             : 41
+> propagations          : 782309
+> conflict literals     : 377  (0 % deleted)
+> Current optimal value 9
+> restarts              : 10
+> decisions             : 22617  (0 % random)
+> conflicts             : 46
+> propagations          : 788727
+> conflict literals     : 419  (0 % deleted)
+> Current optimal value 8
+> restarts              : 11
+> decisions             : 24913  (0 % random)
+> conflicts             : 50
+> propagations          : 795253
+> conflict literals     : 449  (0 % deleted)
+> Current optimal value 7
+> restarts              : 12
+> decisions             : 26976  (0 % random)
+> conflicts             : 60
+> propagations          : 826627
+> conflict literals     : 504  (0 % deleted)
+> Current optimal value 6
+> restarts              : 13
+> decisions             : 28994  (0 % random)
+> conflicts             : 65
+> propagations          : 870524
+> conflict literals     : 518  (2.26415 % deleted)
+> Current optimal value 5
+> restarts              : 14
+> decisions             : 30853  (0 % random)
+> conflicts             : 67
+> propagations          : 893338
+> conflict literals     : 520  (3.52505 % deleted)
+> Current optimal value 4
+> restarts              : 15
+> decisions             : 30856  (0 % random)
+> conflicts             : 73
+> propagations          : 927147
+> conflict literals     : 526  (3.48624 % deleted)
+>>> Search done
+The best value found was 4
+Solver generated 1 model(s): 14010ms
+structure  : VocPrivAndTrust {
+  Attribute = { Address; Bill; EMail; Location; MobileNetworkFingerprint; Name; PersonalProp; PhoneNumber; PlatformFingerprint; PointBalance; PointsEarned; PointsToEarn; Products; QRCode; SessGroceryStore; VisitStat }
+  Identifier = { Identity1; Nym1; Nym2; Nym3; Nym4; Nym5; NymSessGroceryStore }
+  Identity = { Identity1 }
+  Organization = { Advertiser; GroceryStore; LoyaltyAppProvider; LoyaltyProgProvider; MobileOperator; MobilePlatform }
+  Profile = { ProfLoyaltyAppProvider; ProfLoyaltyProgramProvider }
+  ProfileAccessType = { Public; Restricted }
+  Pseudonym = { Nym1; Nym2; Nym3; Nym4; Nym5; NymSessGroceryStore }
+  ServiceIdentifier = { Checkout; CollectDataFromLAP; CollectDataFromLPP; CollectLoyaltyPoints; PrintTicket; RequestLoyaltyInfo; SelectLoyaltyCard; ShowLoyaltyInfo }
+  ServiceType = {  }
+  Stakeholder = { Advertiser; GroceryStore; LoyaltyAppProvider; LoyaltyProgProvider; MobileOperator; MobilePlatform; User }
+  User = { User }
+  AnonService = { Checkout,MobileOperator; Checkout,MobilePlatform; SelectLoyaltyCard,LoyaltyProgProvider; SelectLoyaltyCard,MobileOperator; SelectLoyaltyCard,MobilePlatform }
+  DistributionTrust = { Advertiser; GroceryStore; LoyaltyAppProvider; LoyaltyProgProvider; MobileOperator; MobilePlatform }
+  IdentService = { Checkout,Advertiser; Checkout,GroceryStore; Checkout,LoyaltyAppProvider }
+  IdentifierSetAttr = { Identity1,Address; Identity1,Name; Nym1,PhoneNumber; Nym2,EMail; Nym3,QRCode; Nym4,PlatformFingerprint; Nym5,MobileNetworkFingerprint; NymSessGroceryStore,SessGroceryStore }
+  IsAnonService = {  }
+  IsIdentService = { Checkout,GroceryStore }
+  IsPseudoService = {  }
+  IsShareDataSource = {  }
+  IsShareDataTo = { LoyaltyProgProvider,GroceryStore }
+  NoAnonService = {  }
+  NoIdentService = { Checkout,LoyaltyProgProvider }
+  NoPseudoService = {  }
+  NoShareDataSource = { MobileOperator; MobilePlatform }
+  NoShareDataTo = { GroceryStore,LoyaltyAppProvider; LoyaltyAppProvider,GroceryStore; LoyaltyAppProvider,LoyaltyProgProvider; LoyaltyProgProvider,LoyaltyAppProvider }
+  ProfAccess = { ProfLoyaltyAppProvider,LoyaltyAppProvider; ProfLoyaltyProgramProvider,LoyaltyProgProvider }
+  ProfAccessType = { ProfLoyaltyAppProvider,Restricted; ProfLoyaltyProgramProvider,Restricted }
+  ProfAttr = { ProfLoyaltyAppProvider,EMail,User; ProfLoyaltyAppProvider,Name,User; ProfLoyaltyProgramProvider,Address,User; ProfLoyaltyProgramProvider,EMail,User; ProfLoyaltyProgramProvider,PersonalProp,User; ProfLoyaltyProgramProvider,PhoneNumber,User; ProfLoyaltyProgramProvider,PointBalance,LoyaltyProgProvider; ProfLoyaltyProgramProvider,QRCode,LoyaltyProgProvider }
+  ProfIdentifier = { ProfLoyaltyAppProvider,Nym2; ProfLoyaltyProgramProvider,Nym1; ProfLoyaltyProgramProvider,Nym2; ProfLoyaltyProgramProvider,Nym3 }
+  ProfOwner = { ProfLoyaltyAppProvider,LoyaltyAppProvider; ProfLoyaltyProgramProvider,LoyaltyProgProvider }
+  PseudoService = { Checkout,LoyaltyProgProvider; SelectLoyaltyCard,Advertiser; SelectLoyaltyCard,GroceryStore; SelectLoyaltyCard,LoyaltyAppProvider }
+  RevealedToService = {  }
+  SearchSet = { Address; Bill; Name; QRCode }
+  Service = {  }
+  ServiceInvokedByUser = { Checkout; SelectLoyaltyCard }
+  ShareDataTo = { Advertiser,GroceryStore; Advertiser,LoyaltyAppProvider; LoyaltyAppProvider,Advertiser; LoyaltyProgProvider,Advertiser; LoyaltyProgProvider,GroceryStore }
+  StorageTrust = { Advertiser; GroceryStore; LoyaltyAppProvider; LoyaltyProgProvider; MobileOperator; MobilePlatform }
+  TrustRelationShipsOf = { LoyaltyProgProvider }
+  TrustedBy = {  }
+  Trusts = {  }
+  UserProfile = { LoyaltyAppProvider,Nym4,SelectLoyaltyCard,Location,MobileOperator; LoyaltyAppProvider,Nym4,SelectLoyaltyCard,Location,MobilePlatform; LoyaltyAppProvider,Nym4,SelectLoyaltyCard,MobileNetworkFingerprint,MobileOperator; LoyaltyAppProvider,Nym4,SelectLoyaltyCard,PlatformFingerprint,MobilePlatform; LoyaltyAppProvider,Nym4,SelectLoyaltyCard,VisitStat,LoyaltyAppProvider; LoyaltyAppProvider,Nym5,SelectLoyaltyCard,Location,MobileOperator; LoyaltyAppProvider,Nym5,SelectLoyaltyCard,Location,MobilePlatform; LoyaltyAppProvider,Nym5,SelectLoyaltyCard,MobileNetworkFingerprint,MobileOperator; LoyaltyAppProvider,Nym5,SelectLoyaltyCard,PlatformFingerprint,MobilePlatform; LoyaltyAppProvider,Nym5,SelectLoyaltyCard,VisitStat,LoyaltyAppProvider; LoyaltyProgProvider,Nym1,Checkout,Address,User; LoyaltyProgProvider,Nym1,Checkout,Bill,GroceryStore; LoyaltyProgProvider,Nym1,Checkout,EMail,User; LoyaltyProgProvider,Nym1,Checkout,PersonalProp,User; LoyaltyProgProvider,Nym1,Checkout,PhoneNumber,User; LoyaltyProgProvider,Nym1,Checkout,PointBalance,LoyaltyProgProvider; LoyaltyProgProvider,Nym1,Checkout,PointsEarned,LoyaltyProgProvider; LoyaltyProgProvider,Nym1,Checkout,QRCode,LoyaltyProgProvider; LoyaltyProgProvider,Nym2,Checkout,Address,User; LoyaltyProgProvider,Nym2,Checkout,Bill,GroceryStore; LoyaltyProgProvider,Nym2,Checkout,EMail,User; LoyaltyProgProvider,Nym2,Checkout,PersonalProp,User; LoyaltyProgProvider,Nym2,Checkout,PhoneNumber,User; LoyaltyProgProvider,Nym2,Checkout,PointBalance,LoyaltyProgProvider; LoyaltyProgProvider,Nym2,Checkout,PointsEarned,LoyaltyProgProvider; LoyaltyProgProvider,Nym2,Checkout,QRCode,LoyaltyProgProvider; LoyaltyProgProvider,Nym3,Checkout,Address,User; LoyaltyProgProvider,Nym3,Checkout,Bill,GroceryStore; LoyaltyProgProvider,Nym3,Checkout,EMail,User; LoyaltyProgProvider,Nym3,Checkout,PersonalProp,User; LoyaltyProgProvider,Nym3,Checkout,PhoneNumber,User; LoyaltyProgProvider,Nym3,Checkout,PointBalance,LoyaltyProgProvider; LoyaltyProgProvider,Nym3,Checkout,PointsEarned,LoyaltyProgProvider; LoyaltyProgProvider,Nym3,Checkout,QRCode,LoyaltyProgProvider }
+  UserProfileMatch = { Advertiser,Identity1,Checkout; Advertiser,Nym1,Checkout; Advertiser,Nym2,Checkout; Advertiser,Nym3,Checkout; GroceryStore,Identity1,Checkout; GroceryStore,Nym1,Checkout; GroceryStore,Nym2,Checkout; GroceryStore,Nym3,Checkout; LoyaltyAppProvider,Identity1,Checkout; LoyaltyAppProvider,Nym1,Checkout; LoyaltyAppProvider,Nym2,Checkout; LoyaltyAppProvider,Nym3,Checkout }
+  UserProfileQ = { Advertiser,Identity1,Checkout,Address,User; Advertiser,Identity1,Checkout,Bill,GroceryStore; Advertiser,Identity1,Checkout,EMail,User; Advertiser,Identity1,Checkout,Name,User; Advertiser,Identity1,Checkout,PersonalProp,User; Advertiser,Identity1,Checkout,PhoneNumber,User; Advertiser,Identity1,Checkout,PointBalance,LoyaltyProgProvider; Advertiser,Identity1,Checkout,PointsEarned,LoyaltyProgProvider; Advertiser,Identity1,Checkout,QRCode,LoyaltyProgProvider; Advertiser,Nym1,Checkout,Address,User; Advertiser,Nym1,Checkout,Bill,GroceryStore; Advertiser,Nym1,Checkout,EMail,User; Advertiser,Nym1,Checkout,Name,User; Advertiser,Nym1,Checkout,PersonalProp,User; Advertiser,Nym1,Checkout,PhoneNumber,User; Advertiser,Nym1,Checkout,PointBalance,LoyaltyProgProvider; Advertiser,Nym1,Checkout,PointsEarned,LoyaltyProgProvider; Advertiser,Nym1,Checkout,QRCode,LoyaltyProgProvider; Advertiser,Nym2,Checkout,Address,User; Advertiser,Nym2,Checkout,Bill,GroceryStore; Advertiser,Nym2,Checkout,EMail,User; Advertiser,Nym2,Checkout,Name,User; Advertiser,Nym2,Checkout,PersonalProp,User; Advertiser,Nym2,Checkout,PhoneNumber,User; Advertiser,Nym2,Checkout,PointBalance,LoyaltyProgProvider; Advertiser,Nym2,Checkout,PointsEarned,LoyaltyProgProvider; Advertiser,Nym2,Checkout,QRCode,LoyaltyProgProvider; Advertiser,Nym3,Checkout,Address,User; Advertiser,Nym3,Checkout,Bill,GroceryStore; Advertiser,Nym3,Checkout,EMail,User; Advertiser,Nym3,Checkout,Name,User; Advertiser,Nym3,Checkout,PersonalProp,User; Advertiser,Nym3,Checkout,PhoneNumber,User; Advertiser,Nym3,Checkout,PointBalance,LoyaltyProgProvider; Advertiser,Nym3,Checkout,PointsEarned,LoyaltyProgProvider; Advertiser,Nym3,Checkout,QRCode,LoyaltyProgProvider; Advertiser,Nym4,SelectLoyaltyCard,Location,MobileOperator; Advertiser,Nym4,SelectLoyaltyCard,Location,MobilePlatform; Advertiser,Nym4,SelectLoyaltyCard,MobileNetworkFingerprint,MobileOperator; Advertiser,Nym4,SelectLoyaltyCard,PlatformFingerprint,MobilePlatform; Advertiser,Nym4,SelectLoyaltyCard,VisitStat,LoyaltyAppProvider; Advertiser,Nym5,SelectLoyaltyCard,Location,MobileOperator; Advertiser,Nym5,SelectLoyaltyCard,Location,MobilePlatform; Advertiser,Nym5,SelectLoyaltyCard,MobileNetworkFingerprint,MobileOperator; Advertiser,Nym5,SelectLoyaltyCard,PlatformFingerprint,MobilePlatform; Advertiser,Nym5,SelectLoyaltyCard,VisitStat,LoyaltyAppProvider; GroceryStore,Identity1,Checkout,Address,User; GroceryStore,Identity1,Checkout,Bill,GroceryStore; GroceryStore,Identity1,Checkout,EMail,User; GroceryStore,Identity1,Checkout,Name,User; GroceryStore,Identity1,Checkout,PersonalProp,User; GroceryStore,Identity1,Checkout,PhoneNumber,User; GroceryStore,Identity1,Checkout,PointBalance,LoyaltyProgProvider; GroceryStore,Identity1,Checkout,PointsEarned,LoyaltyProgProvider; GroceryStore,Identity1,Checkout,QRCode,LoyaltyProgProvider; GroceryStore,Nym1,Checkout,Address,User; GroceryStore,Nym1,Checkout,Bill,GroceryStore; GroceryStore,Nym1,Checkout,EMail,User; GroceryStore,Nym1,Checkout,Name,User; GroceryStore,Nym1,Checkout,PersonalProp,User; GroceryStore,Nym1,Checkout,PhoneNumber,User; GroceryStore,Nym1,Checkout,PointBalance,LoyaltyProgProvider; GroceryStore,Nym1,Checkout,PointsEarned,LoyaltyProgProvider; GroceryStore,Nym1,Checkout,QRCode,LoyaltyProgProvider; GroceryStore,Nym2,Checkout,Address,User; GroceryStore,Nym2,Checkout,Bill,GroceryStore; GroceryStore,Nym2,Checkout,EMail,User; GroceryStore,Nym2,Checkout,Name,User; GroceryStore,Nym2,Checkout,PersonalProp,User; GroceryStore,Nym2,Checkout,PhoneNumber,User; GroceryStore,Nym2,Checkout,PointBalance,LoyaltyProgProvider; GroceryStore,Nym2,Checkout,PointsEarned,LoyaltyProgProvider; GroceryStore,Nym2,Checkout,QRCode,LoyaltyProgProvider; GroceryStore,Nym3,Checkout,Address,User; GroceryStore,Nym3,Checkout,Bill,GroceryStore; GroceryStore,Nym3,Checkout,EMail,User; GroceryStore,Nym3,Checkout,Name,User; GroceryStore,Nym3,Checkout,PersonalProp,User; GroceryStore,Nym3,Checkout,PhoneNumber,User; GroceryStore,Nym3,Checkout,PointBalance,LoyaltyProgProvider; GroceryStore,Nym3,Checkout,PointsEarned,LoyaltyProgProvider; GroceryStore,Nym3,Checkout,QRCode,LoyaltyProgProvider; GroceryStore,Nym4,SelectLoyaltyCard,Location,MobileOperator; GroceryStore,Nym4,SelectLoyaltyCard,Location,MobilePlatform; GroceryStore,Nym4,SelectLoyaltyCard,MobileNetworkFingerprint,MobileOperator; GroceryStore,Nym4,SelectLoyaltyCard,PlatformFingerprint,MobilePlatform; GroceryStore,Nym4,SelectLoyaltyCard,VisitStat,LoyaltyAppProvider; GroceryStore,Nym5,SelectLoyaltyCard,Location,MobileOperator; GroceryStore,Nym5,SelectLoyaltyCard,Location,MobilePlatform; GroceryStore,Nym5,SelectLoyaltyCard,MobileNetworkFingerprint,MobileOperator; GroceryStore,Nym5,SelectLoyaltyCard,PlatformFingerprint,MobilePlatform; GroceryStore,Nym5,SelectLoyaltyCard,VisitStat,LoyaltyAppProvider; LoyaltyAppProvider,Identity1,Checkout,Address,User; LoyaltyAppProvider,Identity1,Checkout,Bill,GroceryStore; LoyaltyAppProvider,Identity1,Checkout,EMail,User; LoyaltyAppProvider,Identity1,Checkout,Name,User; LoyaltyAppProvider,Identity1,Checkout,PersonalProp,User; LoyaltyAppProvider,Identity1,Checkout,PhoneNumber,User; LoyaltyAppProvider,Identity1,Checkout,PointBalance,LoyaltyProgProvider; LoyaltyAppProvider,Identity1,Checkout,PointsEarned,LoyaltyProgProvider; LoyaltyAppProvider,Identity1,Checkout,QRCode,LoyaltyProgProvider; LoyaltyAppProvider,Nym1,Checkout,Address,User; LoyaltyAppProvider,Nym1,Checkout,Bill,GroceryStore; LoyaltyAppProvider,Nym1,Checkout,EMail,User; LoyaltyAppProvider,Nym1,Checkout,Name,User; LoyaltyAppProvider,Nym1,Checkout,PersonalProp,User; LoyaltyAppProvider,Nym1,Checkout,PhoneNumber,User; LoyaltyAppProvider,Nym1,Checkout,PointBalance,LoyaltyProgProvider; LoyaltyAppProvider,Nym1,Checkout,PointsEarned,LoyaltyProgProvider; LoyaltyAppProvider,Nym1,Checkout,QRCode,LoyaltyProgProvider; LoyaltyAppProvider,Nym2,Checkout,Address,User; LoyaltyAppProvider,Nym2,Checkout,Bill,GroceryStore; LoyaltyAppProvider,Nym2,Checkout,EMail,User; LoyaltyAppProvider,Nym2,Checkout,Name,User; LoyaltyAppProvider,Nym2,Checkout,PersonalProp,User; LoyaltyAppProvider,Nym2,Checkout,PhoneNumber,User; LoyaltyAppProvider,Nym2,Checkout,PointBalance,LoyaltyProgProvider; LoyaltyAppProvider,Nym2,Checkout,PointsEarned,LoyaltyProgProvider; LoyaltyAppProvider,Nym2,Checkout,QRCode,LoyaltyProgProvider; LoyaltyAppProvider,Nym3,Checkout,Address,User; LoyaltyAppProvider,Nym3,Checkout,Bill,GroceryStore; LoyaltyAppProvider,Nym3,Checkout,EMail,User; LoyaltyAppProvider,Nym3,Checkout,Name,User; LoyaltyAppProvider,Nym3,Checkout,PersonalProp,User; LoyaltyAppProvider,Nym3,Checkout,PhoneNumber,User; LoyaltyAppProvider,Nym3,Checkout,PointBalance,LoyaltyProgProvider; LoyaltyAppProvider,Nym3,Checkout,PointsEarned,LoyaltyProgProvider; LoyaltyAppProvider,Nym3,Checkout,QRCode,LoyaltyProgProvider; LoyaltyAppProvider,Nym4,SelectLoyaltyCard,Location,MobileOperator; LoyaltyAppProvider,Nym4,SelectLoyaltyCard,Location,MobilePlatform; LoyaltyAppProvider,Nym4,SelectLoyaltyCard,MobileNetworkFingerprint,MobileOperator; LoyaltyAppProvider,Nym4,SelectLoyaltyCard,PlatformFingerprint,MobilePlatform; LoyaltyAppProvider,Nym4,SelectLoyaltyCard,VisitStat,LoyaltyAppProvider; LoyaltyAppProvider,Nym5,SelectLoyaltyCard,Location,MobileOperator; LoyaltyAppProvider,Nym5,SelectLoyaltyCard,Location,MobilePlatform; LoyaltyAppProvider,Nym5,SelectLoyaltyCard,MobileNetworkFingerprint,MobileOperator; LoyaltyAppProvider,Nym5,SelectLoyaltyCard,PlatformFingerprint,MobilePlatform; LoyaltyAppProvider,Nym5,SelectLoyaltyCard,VisitStat,LoyaltyAppProvider; LoyaltyProgProvider,Nym1,Checkout,Address,User; LoyaltyProgProvider,Nym1,Checkout,Bill,GroceryStore; LoyaltyProgProvider,Nym1,Checkout,EMail,User; LoyaltyProgProvider,Nym1,Checkout,PersonalProp,User; LoyaltyProgProvider,Nym1,Checkout,PhoneNumber,User; LoyaltyProgProvider,Nym1,Checkout,PointBalance,LoyaltyProgProvider; LoyaltyProgProvider,Nym1,Checkout,PointsEarned,LoyaltyProgProvider; LoyaltyProgProvider,Nym1,Checkout,QRCode,LoyaltyProgProvider; LoyaltyProgProvider,Nym2,Checkout,Address,User; LoyaltyProgProvider,Nym2,Checkout,Bill,GroceryStore; LoyaltyProgProvider,Nym2,Checkout,EMail,User; LoyaltyProgProvider,Nym2,Checkout,PersonalProp,User; LoyaltyProgProvider,Nym2,Checkout,PhoneNumber,User; LoyaltyProgProvider,Nym2,Checkout,PointBalance,LoyaltyProgProvider; LoyaltyProgProvider,Nym2,Checkout,PointsEarned,LoyaltyProgProvider; LoyaltyProgProvider,Nym2,Checkout,QRCode,LoyaltyProgProvider; LoyaltyProgProvider,Nym3,Checkout,Address,User; LoyaltyProgProvider,Nym3,Checkout,Bill,GroceryStore; LoyaltyProgProvider,Nym3,Checkout,EMail,User; LoyaltyProgProvider,Nym3,Checkout,PersonalProp,User; LoyaltyProgProvider,Nym3,Checkout,PhoneNumber,User; LoyaltyProgProvider,Nym3,Checkout,PointBalance,LoyaltyProgProvider; LoyaltyProgProvider,Nym3,Checkout,PointsEarned,LoyaltyProgProvider; LoyaltyProgProvider,Nym3,Checkout,QRCode,LoyaltyProgProvider }
+  UserProfileViolation = { Advertiser,Identity1,Checkout,Address; Advertiser,Identity1,Checkout,EMail; Advertiser,Identity1,Checkout,Name; Advertiser,Nym1,Checkout,Address; Advertiser,Nym1,Checkout,EMail; Advertiser,Nym1,Checkout,Name; Advertiser,Nym2,Checkout,Address; Advertiser,Nym2,Checkout,EMail; Advertiser,Nym2,Checkout,Name; Advertiser,Nym3,Checkout,Address; Advertiser,Nym3,Checkout,EMail; Advertiser,Nym3,Checkout,Name }
+  ViolationSet = { Advertiser,Address; Advertiser,EMail; Advertiser,Name }
+  PublicAccess = Public
+  RestrictedAccess = Restricted
+}
+
