@@ -7,7 +7,8 @@ In this project, a formal approach to analyse privacy properties in complex elec
 This project is realized in the IDP 3 (http://dtai.cs.kuleuven.be/krr/software/idp). The inference strategy is specified in [theory](https://github.com/decroik/inspect-privacy-and-trust/blob/master/AnalyzePrivacyTrustTheory.idp).
 
 ##Webshop scenario
-The vocabulary contains all the symbols that are required for modeling these services. This is applied to a web shop scenario.
+
+The [vocabulary](https://github.com/decroik/inspect-privacy-and-trust/blob/master/AnalyzePrivacyTrustVocab.idp) contains all the symbols that are required for modeling these services. This is applied to a [web shop scenario](https://github.com/decroik/inspect-privacy-and-trust/blob/master/scenario.txt).
 
 The services provided by the web shop are modeled in the input model. The conclusions about the privacy properties are summarized in this output file.
 
