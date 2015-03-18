@@ -8,7 +8,7 @@ This project is realized in the IDP 3 (http://dtai.cs.kuleuven.be/krr/software/i
 
 ##Webshop scenario
 
-The [vocabulary](https://github.com/decroik/inspect-privacy-and-trust/blob/master/AnalyzePrivacyTrustVocab.idp) contains all the symbols that are required for modeling these services. This is applied to a [web shop scenario](https://github.com/decroik/inspect-privacy-and-trust/blob/master/scenario.txt).
+The [vocabulary](https://github.com/decroik/inspect-privacy-and-trust/blob/master/AnalyzePrivacyTrustVocab.idp) contains all the symbols that are required for modeling these services. This is applied to a [web shop scenario](https://github.com/decroik/inspect-privacy-and-trust/blob/master/scenario.txt) (see  [Figure](https://github.com/decroik/inspect-privacy-and-trust/blob/master/scenario.png)).
 
 The services provided by the web shop are modeled in the input model. The conclusions about the privacy properties are summarized in this output file.
 
