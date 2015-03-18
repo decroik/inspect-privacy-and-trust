@@ -7,6 +7,14 @@ In this project, a formal approach to analyse privacy properties in complex elec
 This project is realized in the IDP 3 (http://dtai.cs.kuleuven.be/krr/software/idp). The inference strategy is specified in [theory](https://github.com/decroik/inspect-privacy-and-trust/blob/master/AnalyzePrivacyTrustTheory.idp).
 
 ##Webshop scenario
+
+This is the companion code to the following paper:
+
+A Framework for Formal Reasoning about Privacy Properties Based on Trust Relationships in Complex Electronic Services — Koen Decroix, Jorn Lapon, Bart De Decker and Vincent Naessens — 9th International Conference on Information Systems 
+Security (ICISS 2013), Kolkota, Springer LNCS.
+
+[http://link.springer.com/chapter/10.1007/978-3-642-45204-8_8](http://link.springer.com/chapter/10.1007/978-3-642-45204-8_8)
+
 The [vocabulary](https://github.com/decroik/inspect-privacy-and-trust/blob/master/AnalyzePrivacyTrustVocab.idp) contains all the symbols that are required for modeling these services. This is applied to a [web shop scenario](https://github.com/decroik/inspect-privacy-and-trust/blob/master/scenario.txt) (see  [Figure](https://github.com/decroik/inspect-privacy-and-trust/blob/master/scenario.png)).
 
 The services provided by the web shop are modeled in the [input model](https://github.com/decroik/inspect-privacy-and-trust/blob/master/WebShopInputModel.idp). The conclusions about the privacy properties are summarized in this [output file](https://github.com/decroik/inspect-privacy-and-trust/blob/master/Outputwebshop.txt).
