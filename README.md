@@ -7,36 +7,35 @@ In this project, a formal approach to analyse privacy properties in complex elec
 This project is realized in the IDP 3 (http://dtai.cs.kuleuven.be/krr/software/idp). The inference strategy is specified in [theory](https://github.com/decroik/inspect-privacy-and-trust/blob/master/AnalyzePrivacyTrustTheory.idp).
 
 ##Webshop scenario
-
 The [vocabulary](https://github.com/decroik/inspect-privacy-and-trust/blob/master/AnalyzePrivacyTrustVocab.idp) contains all the symbols that are required for modeling these services. This is applied to a [web shop scenario](https://github.com/decroik/inspect-privacy-and-trust/blob/master/scenario.txt) (see  [Figure](https://github.com/decroik/inspect-privacy-and-trust/blob/master/scenario.png)).
 
-The services provided by the web shop are modeled in the input model. The conclusions about the privacy properties are summarized in this output file.
+The services provided by the web shop are modeled in the [input model](https://github.com/decroik/inspect-privacy-and-trust/blob/master/WebShopInputModel.idp). The conclusions about the privacy properties are summarized in this [output file](https://github.com/decroik/inspect-privacy-and-trust/blob/master/Outputwebshop.txt).
 
 ##Loyalty scenarios
-Privacy is analyzed for two loyalty scenarios. Different types of users are modeled for both scenarios, namely a user that is less concerned about his privacy (U1) and a user that is more concerned about it (U2). User profiles are generated from these models and are analyzed for two cases, namely, in case there are no collaborations between organizations and in case there are collaborations.
+Privacy is analyzed for two [loyalty scenarios](https://github.com/decroik/inspect-privacy-and-trust/blob/master/Loyalty%20Scenarios/scenario.txt). Different types of users are modeled for both scenarios, namely a user that is less concerned about his privacy (U1) and a user that is more concerned about it (U2). User profiles are generated from these models and are analyzed for two cases, namely, in case there are no collaborations between organizations and in case there are collaborations.
 
 ###Models of loyalty scenarios
- * Model of scenario 1: U1
+ * Model of [scenario 1: U1](https://github.com/decroik/inspect-privacy-and-trust/blob/master/Loyalty%20Scenarios/01_U1_CardbasedLoyaltySystem.idp)
   * Privacy analysis in case no collaborations exist.
-    * Link to results
+    * [Link](https://github.com/decroik/inspect-privacy-and-trust/blob/master/Loyalty%20Scenarios/01_U1_userprofiles_NoCollab.idp) to results
   * Privacy analysis in case advertisers share data to the loyalty app provider.
-    * Link to results
- * Model of scenario 1: U2
+    * [Link](https://github.com/decroik/inspect-privacy-and-trust/blob/master/Loyalty%20Scenarios/01_U1_userprofiles_ADtoLAP.idp) to results
+ * Model of [scenario 1: U2](https://github.com/decroik/inspect-privacy-and-trust/blob/master/Loyalty%20Scenarios/01_U2_CardbasedLoyaltySystem.idp)
   * Privacy analysis in case no collaborations exist.
-    * Link to results
+    * [Link](https://github.com/decroik/inspect-privacy-and-trust/blob/master/Loyalty%20Scenarios/01_U2_userprofiles_NoCollab.idp) to results
   * Privacy analysis in case advertisers share data to the loyalty app provider.
-    * Link to results
- * Model of scenario 2: U1
+    * [Link](https://github.com/decroik/inspect-privacy-and-trust/blob/master/Loyalty%20Scenarios/01_U2_userprofiles_ADtoLAP.idp) to results
+ * Model of [scenario 2: U1](https://github.com/decroik/inspect-privacy-and-trust/blob/master/Loyalty%20Scenarios/02_U1_AppbasedLoyaltySystem.idp)
   * Privacy analysis in case no collaborations exist.
-    * Link to results
+    * [Link](https://github.com/decroik/inspect-privacy-and-trust/blob/master/Loyalty%20Scenarios/02_U1_userprofiles_NoCollab.idp) to results
   * Privacy analysis in case advertisers share data to the loyalty app provider.
-    * Link to results
+    * [Link](https://github.com/decroik/inspect-privacy-and-trust/blob/master/Loyalty%20Scenarios/02_U1_userprofiles_ADtoLAP.idp) to results
   * Privacy analysis in case a minimum set of collaborations that is found.
-    * Link to results
- * Model of scenario 2: U2
+    * [Link](https://github.com/decroik/inspect-privacy-and-trust/blob/master/Loyalty%20Scenarios/02_U1_userprofiles_xxCollab.idp) to results
+ * Model of [scenario 2: U2](https://github.com/decroik/inspect-privacy-and-trust/blob/master/Loyalty%20Scenarios/02_U2_AppbasedLoyaltySystem.idp)
   * Privacy analysis in case no collaborations exist.
-    * Link to results
+    * [Link](https://github.com/decroik/inspect-privacy-and-trust/blob/master/Loyalty%20Scenarios/02_U2_userprofiles_NoCollab.idp) to results
   * Privacy analysis in case advertisers share data to the loyalty app provider.
-    * Link to results
+    * [Link](https://github.com/decroik/inspect-privacy-and-trust/blob/master/Loyalty%20Scenarios/02_U2_userprofiles_ADtoLAP.idp) to results
   * Privacy analysis in case a minimum set of collaborations that is found.
-    * Link to results
+    * [Link](https://github.com/decroik/inspect-privacy-and-trust/blob/master/Loyalty%20Scenarios/02_U2_userprofiles_xxCollab.idp) to results
